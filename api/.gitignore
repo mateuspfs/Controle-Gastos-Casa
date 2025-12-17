@@ -1,0 +1,29 @@
+# Build outputs
+**/bin/
+**/obj/
+**/out/
+
+# User-specific files
+*.user
+*.rsuser
+*.suo
+*.userosscache
+*.sln.docstates
+
+# IDE settings
+.vs/
+.idea/
+*.swp
+*.tmp
+
+# NuGet
+**/packages/
+*.nupkg
+*.snupkg
+
+# Logs
+*.log
+
+# ASP.NET tooling
+launchSettings.json
+
