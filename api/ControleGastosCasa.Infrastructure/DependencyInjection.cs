@@ -18,9 +18,9 @@ public static class DependencyInjection
             options.UseNpgsql(connectionString, npgsql =>
                 npgsql.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName)));
 
-        services.AddScoped<IGenericRepository<Pessoa>, PessoasRepository>();
-        services.AddScoped<IGenericRepository<Categoria>, CategoriasRepository>();
-        services.AddScoped<IGenericRepository<Transacao>, TransacoesRepository>();
+        services.AddScoped<IGenericRepository<Pessoa>, PessoaRepository>();
+        services.AddScoped<IGenericRepository<Categoria>, CategoriaRepository>();
+        services.AddScoped<IGenericRepository<Transacao>, TransacaoRepository>();
 
         return services;
     }

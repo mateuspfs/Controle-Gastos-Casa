@@ -3,5 +3,5 @@ using ControleGastosCasa.Infrastructure.Persistence;
 
 namespace ControleGastosCasa.Infrastructure.Repositories;
 
-public class TransacoesRepository(AppDbContext context) : GenericRepository<Transacao>(context);
+public class CategoriaRepository(AppDbContext context) : GenericRepository<Categoria>(context);
 
