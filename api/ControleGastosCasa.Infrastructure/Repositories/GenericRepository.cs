@@ -1,3 +1,5 @@
+using System;
+using System.Linq;
 using ControleGastosCasa.Domain.Repositories;
 using ControleGastosCasa.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -20,6 +22,17 @@ public class GenericRepository<T>(AppDbContext context) : IGenericRepository<T> 
     public virtual async Task<IReadOnlyList<T>> ListAsync(CancellationToken cancellationToken = default)
     {
         return await Context.Set<T>().AsNoTracking().ToListAsync(cancellationToken);
+    }
+
+    public virtual async Task<IReadOnlyList<T>> PaginateAsync(int skip = 0, int take = 20, CancellationToken cancellationToken = default)
+    {
+        var safeSkip = Math.Max(0, skip);
+        var safeTake = Math.Max(1, take);
+        return await Context.Set<T>()
+            .AsNoTracking()
+            .Skip(safeSkip)
+            .Take(safeTake)
+            .ToListAsync(cancellationToken);
     }
 
     public virtual async Task AddAsync(T entity, CancellationToken cancellationToken = default)
