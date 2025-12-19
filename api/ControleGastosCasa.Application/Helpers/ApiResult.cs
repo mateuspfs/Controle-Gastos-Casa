@@ -1,4 +1,4 @@
-namespace ControleGastosCasa.Application.Services.Models;
+namespace ControleGastosCasa.Application.Helpers;
 
 public class ApiResult<T>
 {
