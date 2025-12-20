@@ -57,7 +57,7 @@ export default function Sidebar() {
 
   return (
     <>
-      <aside className="hidden h-screen w-72 flex-col border-r border-slate-200 bg-white px-4 py-6 shadow-sm dark:border-slate-800 dark:bg-slate-900 md:flex">
+      <aside className="hidden h-screen w-72 flex-col border-r border-slate-200/80 bg-white/95 backdrop-blur-sm px-4 py-6 shadow-lg dark:border-slate-800 dark:bg-slate-900 dark:shadow-none md:flex">
         <div className="flex items-center justify-between px-2">
           <div>
             <p className="text-xs uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
