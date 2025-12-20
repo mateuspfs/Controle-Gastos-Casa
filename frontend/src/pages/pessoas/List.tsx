@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { pessoasApi } from '../../services/api';
 import type { PessoaDto } from '../../types/api';
+import { formatarDataBr } from '../../helpers/masks';
 import {
   Container,
   Box,
@@ -22,11 +24,12 @@ import { swal } from '../../utils/swal';
 
 // Página de listagem de pessoas
 export default function PessoasList() {
+  const navigate = useNavigate();
   const [pessoas, setPessoas] = useState<PessoaDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [skip, setSkip] = useState(0);
-  const [take] = useState(20);
+  const [take] = useState(9);
   const [searchTerm, setSearchTerm] = useState('');
   const [pagination, setPagination] = useState({
     currentPage: 1,
@@ -110,7 +113,7 @@ export default function PessoasList() {
         title=""
         subtitle={`${pagination.totalItems} ${pagination.totalItems === 1 ? 'pessoa encontrada' : 'pessoas encontradas'}`}
         actionLabel="Nova Pessoa"
-        onAction={async () => {}}
+        onAction={() => navigate('/pessoas/novo')}
       />
 
       <Search
@@ -145,6 +148,7 @@ export default function PessoasList() {
                   <Thead>
                     <Tr isHeader>
                       <Th>Nome</Th>
+                      <Th align="center">Data de Nascimento</Th>
                       <Th align="center">Idade</Th>
                       <Th align="right">Ações</Th>
                     </Tr>
@@ -153,10 +157,11 @@ export default function PessoasList() {
                     {pessoas.map((pessoa, index) => (
                       <Tr key={pessoa.id} index={index}>
                         <Td className="font-medium">{pessoa.nome}</Td>
-                        <Td align="center">{pessoa.idade} anos</Td>
+                        <Td align="center">{formatarDataBr(pessoa.dataNascimento)}</Td>
+                        <Td align="center">{pessoa.idade ?? 'N/A'}</Td>
                         <Td align="right">
                           <ActionButtons
-                            onEdit={async () => {}}
+                            onEdit={() => pessoa.id && navigate(`/pessoas/editar/${pessoa.id}`)}
                             onDelete={() => pessoa.id && handleDelete(pessoa.id)}
                           />
                         </Td>

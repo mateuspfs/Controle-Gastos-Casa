@@ -18,7 +18,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             builder.ToTable("pessoas");
             builder.HasKey(p => p.Id);
             builder.Property(p => p.Nome).IsRequired().HasMaxLength(150);
-            builder.Property(p => p.Idade).IsRequired();
+            builder.Property(p => p.DataNascimento).IsRequired().HasColumnType("date");
         });
 
         modelBuilder.Entity<Categoria>(builder =>

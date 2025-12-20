@@ -12,4 +12,5 @@ export { default as EmptyState } from './EmptyState';
 export { default as Pagination } from './Pagination';
 export { default as ActionButtons } from './ActionButtons';
 export { default as Search } from './Search';
+export { Input, Select } from './Form';
 

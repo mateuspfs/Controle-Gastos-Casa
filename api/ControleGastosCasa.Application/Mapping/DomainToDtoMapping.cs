@@ -1,5 +1,6 @@
 using AutoMapper;
 using ControleGastosCasa.Application.Dtos;
+using ControleGastosCasa.Application.Helpers;
 using ControleGastosCasa.Domain.Entities;
 
 namespace ControleGastosCasa.Application.Mapping
@@ -8,7 +9,9 @@ namespace ControleGastosCasa.Application.Mapping
     {
         public DomainToDtoMapping()
         {
-            CreateMap<Pessoa, PessoaDto>();
+            // Calcula idade formatada a partir da DataNascimento ao mapear Domain para DTO
+            CreateMap<Pessoa, PessoaDto>()
+                .ForMember(dest => dest.Idade, opt => opt.MapFrom(src => DateHelper.CalcularIdadeFormatada(src.DataNascimento)));
             CreateMap<Categoria, CategoriaDto>();
             CreateMap<Transacao, TransacaoDto>();
         }

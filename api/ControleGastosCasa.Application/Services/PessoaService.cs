@@ -27,6 +27,28 @@ public class PessoaService(IGenericRepository<Pessoa> pessoasRepository, IMapper
         }
     }
 
+    // Atualiza uma pessoa existente.
+    public async Task<ApiResult<PessoaDto>> UpdateAsync(int id, PessoaDto model, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var pessoaExistente = await pessoasRepository.GetByIdAsync(id, cancellationToken);
+            if (pessoaExistente is null)
+                return ApiResult<PessoaDto>.Fail("Pessoa não encontrada");
+
+            // Atualiza os campos
+            pessoaExistente.Nome = model.Nome;
+            pessoaExistente.DataNascimento = model.DataNascimento;
+
+            await pessoasRepository.UpdateAsync(pessoaExistente, cancellationToken);
+            return ApiResult<PessoaDto>.Ok(mapper.Map<Pessoa, PessoaDto>(pessoaExistente));
+        }
+        catch
+        {
+            return ApiResult<PessoaDto>.Fail("Ocorreu um erro ao atualizar a pessoa");
+        }
+    }
+
     // Retorna pessoas paginadas com filtro opcional por nome
     public async Task<ApiResult<PagedResultDto<PessoaDto>>> GetAllAsync(int skip = 0, int take = 20, string? searchTerm = null, CancellationToken cancellationToken = default)
     {
@@ -43,8 +65,11 @@ public class PessoaService(IGenericRepository<Pessoa> pessoasRepository, IMapper
             Expression<Func<Pessoa, bool>>? where = null;
             if (!string.IsNullOrWhiteSpace(normalizedSearchTerm)) where = p => p.Nome.Contains(normalizedSearchTerm);
 
+            // Ordena por ID descendente (últimos registros primeiro)
+            Expression<Func<Pessoa, object>> orderBy = p => p.Id;
+
             // Busca os itens paginados e o total de registros sequencialmente
-            var pessoas = await pessoasRepository.PaginateAsync(safeSkip, safeTake, where, cancellationToken);
+            var pessoas = await pessoasRepository.PaginateAsync(safeSkip, safeTake, where, orderBy, cancellationToken);
             var totalItems = await pessoasRepository.CountAsync(where, cancellationToken);
 
             // Mapeia os DTOs

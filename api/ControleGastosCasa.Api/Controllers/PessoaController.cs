@@ -11,12 +11,26 @@ public class PessoaController(IPessoaService pessoasService) : ControllerBase
 {
     [HttpPost]
     public async Task<ActionResult<ApiResult<PessoaDto>>> CreateAsync([FromBody] PessoaDto request, CancellationToken cancellationToken)
-    {
+    {        
         var pessoa = await pessoasService.CreateAsync(request, cancellationToken);
         if (!pessoa.Success || pessoa.Data is null)
             return BadRequest(pessoa);
 
         return StatusCode(201, pessoa);
+    }
+
+    [HttpPut("{id:int}")]
+    public async Task<ActionResult<ApiResult<PessoaDto>>> UpdateAsync(int id, [FromBody] PessoaDto request, CancellationToken cancellationToken)
+    {
+        var pessoa = await pessoasService.UpdateAsync(id, request, cancellationToken);
+        if (!pessoa.Success || pessoa.Data is null)
+        {
+            if (pessoa.Errors.Any(e => e.Contains("não encontrada", StringComparison.OrdinalIgnoreCase)))
+                return NotFound(pessoa);
+            return BadRequest(pessoa);
+        }
+
+        return Ok(pessoa);
     }
 
     [HttpGet("{id:int}")]

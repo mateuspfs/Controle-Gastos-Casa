@@ -6,10 +6,15 @@ public class PessoaDto
 {
     public int? Id { get; set; }
 
-    [Required, StringLength(150, MinimumLength = 2)]
+    [Required(ErrorMessage = "Nome é obrigatório.")]
+    [StringLength(150, MinimumLength = 3, ErrorMessage = "Nome muito curto.")]
+    [RegularExpression(@"^[a-zA-ZÀ-ÿ\s]+$", ErrorMessage = "Nome não deve conter números.")]
     public string Nome { get; set; } = string.Empty;
 
-    [Range(1, int.MaxValue)]
-    public int Idade { get; set; }
+    [Required(ErrorMessage = "Data de nascimento é obrigatória.")]
+    public DateTime DataNascimento { get; set; }
+
+    // Idade formatada como texto (ex: "5 anos", "6 meses", "2 anos e 3 meses")
+    public string? Idade { get; set; }
 }
 

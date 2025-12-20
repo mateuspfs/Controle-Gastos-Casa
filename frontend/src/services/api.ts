@@ -27,10 +27,24 @@ export const pessoasApi = {
     return response.data;
   },
 
-  // Cria nova pessoa
-  create: async (pessoa: Omit<PessoaDto, 'id'>): Promise<ApiResult<PessoaDto>> => {
-    const response = await api.post<ApiResult<PessoaDto>>('/pessoas', pessoa);
-    return response.data;
+  // Cria nova pessoa (enviando apenas nome e dataNascimento, idade é calculada no backend)
+  create: async (pessoa: Omit<PessoaDto, 'id' | 'idade'>): Promise<ApiResult<PessoaDto>> => {
+    try {
+      const response = await api.post<ApiResult<PessoaDto>>('/pessoas', pessoa);
+      return response.data;
+    } catch (error: any) {
+      throw error;
+    }
+  },
+
+  // Atualiza pessoa existente
+  update: async (id: number, pessoa: Omit<PessoaDto, 'id' | 'idade'>): Promise<ApiResult<PessoaDto>> => {
+    try {
+      const response = await api.put<ApiResult<PessoaDto>>(`/pessoas/${id}`, pessoa);
+      return response.data;
+    } catch (error: any) {
+      throw error;
+    }
   },
 
   // Deleta pessoa por ID

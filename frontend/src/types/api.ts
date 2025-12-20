@@ -1,5 +1,14 @@
 // Tipos TypeScript correspondentes aos DTOs e helpers da API
 
+// Formato padrão de erro de validação do ASP.NET Core
+export interface AspNetValidationError {
+  type: string;
+  title: string;
+  status: number;
+  errors: Record<string, string[]>;
+  traceId?: string;
+}
+
 export interface ApiResult<T> {
   success: boolean;
   errors: string[];
@@ -20,6 +29,7 @@ export interface PagedResultDto<T> {
 export interface PessoaDto {
   id?: number;
   nome: string;
-  idade: number;
+  dataNascimento: string;
+  idade?: string;
 }
 

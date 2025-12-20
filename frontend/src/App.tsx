@@ -8,6 +8,8 @@ import {
 import Sidebar from './components/Sidebar';
 import ThemeToggle from './components/ThemeToggle';
 import PessoasList from './pages/pessoas/List';
+import PessoasCreate from './pages/pessoas/Create';
+import PessoasUpdate from './pages/pessoas/Update';
 import TransacoesList from './pages/transacoes/List';
 import CategoriasList from './pages/categorias/List';
 
@@ -17,6 +19,8 @@ function App() {
   const path = location.pathname;
   // Título dinâmico baseado na rota atual
   const title = useMemo(() => {
+    if (path === '/pessoas/novo') return 'Cadastro de Pessoa';
+    if (path.startsWith('/pessoas/editar')) return 'Edição de Pessoa';
     if (path.startsWith('/pessoas')) return 'Listagem de pessoas';
     if (path.startsWith('/transacoes')) return 'Transações';
     if (path.startsWith('/categorias')) return 'Categorias';
@@ -45,6 +49,8 @@ function App() {
               <Routes>
                 <Route path="/" element={<Navigate to="/pessoas" replace />} />
                 <Route path="/pessoas" element={<PessoasList />} />
+                <Route path="/pessoas/novo" element={<PessoasCreate />} />
+                <Route path="/pessoas/editar/:id" element={<PessoasUpdate />} />
                 <Route path="/transacoes" element={<TransacoesList />} />
                 <Route path="/categorias" element={<CategoriasList />} />
               </Routes>

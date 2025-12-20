@@ -1,5 +1,7 @@
 using ControleGastosCasa.Application;
 using ControleGastosCasa.Infrastructure;
+using ControleGastosCasa.Infrastructure.Persistence;
+using ControleGastosCasa.Infrastructure.Seeders;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -33,6 +35,13 @@ builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddApplication();
 
 var app = builder.Build();
+
+// Executa seeder automaticamente se não houver pessoas no banco
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    await PessoaSeeder.SeedAsync(context);
+}
 
 app.UseSwagger();
 app.UseSwaggerUI();
