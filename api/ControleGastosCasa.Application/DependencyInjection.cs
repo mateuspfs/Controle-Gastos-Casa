@@ -12,8 +12,9 @@ public static class DependencyInjection
         // Registro do Mapper
         services.AddAutoMapper(typeof(DomainToDtoMapping).Assembly, typeof(DtoToDomainMapping).Assembly);
 
-        // Registro dos services específicos com suas interfaces
+        // Registro dos services especï¿½ficos com suas interfaces
         services.AddScoped<IPessoaService, PessoaService>();
+        services.AddScoped<ICategoriaService, CategoriaService>();
 
         return services;
     }

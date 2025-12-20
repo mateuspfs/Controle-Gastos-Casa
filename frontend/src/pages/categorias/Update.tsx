@@ -1,28 +1,28 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { pessoasApi } from '../../services/api';
+import { categoriasApi } from '../../services/api';
 import { Container, Box, PageHeader, Button, Loading, ErrorMessage } from '../../components';
-import PessoaForm from './PessoaForm';
+import CategoriaForm from './CategoriaForm';
 import { swal } from '../../utils/swal';
-import type { PessoaDto } from '../../types/api';
+import { FinalidadeCategoria } from '../../types/api';
 import { getFieldError } from '../../helpers/validation';
 
-// Página de edição de pessoa
-export default function PessoasUpdate() {
+// Página de edição de categoria
+export default function CategoriasUpdate() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
-    nome: '',
-    dataNascimento: '',
+    descricao: '',
+    finalidade: FinalidadeCategoria.Despesa,
   });
-  const [errors, setErrors] = useState<{ nome?: string; dataNascimento?: string }>({});
+  const [errors, setErrors] = useState<{ descricao?: string; finalidade?: string }>({});
 
-  // Carrega dados da pessoa ao montar o componente
+  // Carrega dados da categoria ao montar o componente
   useEffect(() => {
-    const loadPessoa = async () => {
+    const loadCategoria = async () => {
       if (!id) {
         setError('ID não fornecido');
         setLoadingData(false);
@@ -32,15 +32,15 @@ export default function PessoasUpdate() {
       try {
         setLoadingData(true);
         setError(null);
-        const result = await pessoasApi.getById(parseInt(id, 10));
+        const result = await categoriasApi.getById(parseInt(id, 10));
 
         if (result.success && result.data) {
           setFormData({
-            nome: result.data.nome || '',
-            dataNascimento: result.data.dataNascimento ? new Date(result.data.dataNascimento).toISOString().split('T')[0] : '',
+            descricao: result.data.descricao || '',
+            finalidade: result.data.finalidade || FinalidadeCategoria.Despesa,
           });
         } else {
-          setError(result.errors.join(', ') || 'Erro ao carregar pessoa');
+          setError(result.errors.join(', ') || 'Erro ao carregar categoria');
         }
       } catch (err) {
         setError('Erro ao conectar com a API');
@@ -50,21 +50,21 @@ export default function PessoasUpdate() {
       }
     };
 
-    loadPessoa();
+    loadCategoria();
   }, [id]);
 
   // Handler para mudanças nos campos
-  const handleNomeChange = (value: string) => {
-    setFormData((prev) => ({ ...prev, nome: value }));
-    if (errors.nome) {
-      setErrors((prev) => ({ ...prev, nome: undefined }));
+  const handleDescricaoChange = (value: string) => {
+    setFormData((prev) => ({ ...prev, descricao: value }));
+    if (errors.descricao) {
+      setErrors((prev) => ({ ...prev, descricao: undefined }));
     }
   };
 
-  const handleDataNascimentoChange = (value: string) => {
-    setFormData((prev) => ({ ...prev, dataNascimento: value }));
-    if (errors.dataNascimento) {
-      setErrors((prev) => ({ ...prev, dataNascimento: undefined }));
+  const handleFinalidadeChange = (value: FinalidadeCategoria) => {
+    setFormData((prev) => ({ ...prev, finalidade: value }));
+    if (errors.finalidade) {
+      setErrors((prev) => ({ ...prev, finalidade: undefined }));
     }
   };
 
@@ -78,34 +78,34 @@ export default function PessoasUpdate() {
     setLoading(true);
 
     try {
-      const result = await pessoasApi.update(parseInt(id, 10), {
-        nome: formData.nome.trim(),
-        dataNascimento: formData.dataNascimento,
+      const result = await categoriasApi.update(parseInt(id, 10), {
+        descricao: formData.descricao.trim(),
+        finalidade: formData.finalidade,
       });
 
       if (result.success) {
-        swal.successToast('Pessoa atualizada com sucesso!');
+        swal.successToast('Categoria atualizada com sucesso!');
         // Redireciona para a listagem após sucesso
-        navigate('/pessoas');
+        navigate('/categorias');
       } else {
-        swal.errorToast(result.errors.join(', ') || 'Erro ao atualizar pessoa');
+        swal.errorToast(result.errors.join(', ') || 'Erro ao atualizar categoria');
       }
     } catch (err: any) {
       // Trata erros de validação do ASP.NET Core (status 400 com formato padrão)
       if (err.response?.status === 400 && err.response?.data?.errors) {
         const validationError = err.response.data;
-        const fieldErrors: { nome?: string; dataNascimento?: string } = {};
+        const fieldErrors: { descricao?: string; finalidade?: string } = {};
 
-        const nomeError = getFieldError(validationError, 'nome');
-        const dataNascimentoError = getFieldError(validationError, 'dataNascimento');
+        const descricaoError = getFieldError(validationError, 'descricao');
+        const finalidadeError = getFieldError(validationError, 'finalidade');
 
-        if (nomeError) fieldErrors.nome = nomeError;
-        if (dataNascimentoError) fieldErrors.dataNascimento = dataNascimentoError;
+        if (descricaoError) fieldErrors.descricao = descricaoError;
+        if (finalidadeError) fieldErrors.finalidade = finalidadeError;
 
         setErrors(fieldErrors);
 
         // Se houver erros de validação mas nenhum mapeado para os campos conhecidos, mostra toast
-        if (!nomeError && !dataNascimentoError) {
+        if (!descricaoError && !finalidadeError) {
           const allErrors = Object.values(validationError.errors).flat();
           if (allErrors.length > 0) {
             swal.errorToast(allErrors.join(', '));
@@ -122,13 +122,13 @@ export default function PessoasUpdate() {
 
   // Handler para cancelar (voltar para listagem)
   const handleCancel = () => {
-    navigate('/pessoas');
+    navigate('/categorias');
   };
 
   if (loadingData) {
     return (
       <Container>
-        <Loading message="Carregando pessoa..." />
+        <Loading message="Carregando categoria..." />
       </Container>
     );
   }
@@ -136,7 +136,7 @@ export default function PessoasUpdate() {
   if (error) {
     return (
       <Container>
-        <ErrorMessage message={error} onRetry={() => navigate('/pessoas')} />
+        <ErrorMessage message={error} onRetry={() => navigate('/categorias')} />
       </Container>
     );
   }
@@ -144,8 +144,8 @@ export default function PessoasUpdate() {
   return (
     <Container>
       <PageHeader
-        title="Editar Pessoa"
-        subtitle="Altere os dados da pessoa"
+        title="Editar Categoria"
+        subtitle="Altere os dados da categoria"
       />
 
       <Box className="max-w-2xl border-0 shadow-none">
@@ -156,12 +156,12 @@ export default function PessoasUpdate() {
         )}
 
         <form onSubmit={handleSubmit}>
-          <PessoaForm
-            nome={formData.nome}
-            dataNascimento={formData.dataNascimento}
+          <CategoriaForm
+            descricao={formData.descricao}
+            finalidade={formData.finalidade}
             errors={errors}
-            onNomeChange={handleNomeChange}
-            onDataNascimentoChange={handleDataNascimentoChange}
+            onDescricaoChange={handleDescricaoChange}
+            onFinalidadeChange={handleFinalidadeChange}
             disabled={loading}
           />
 

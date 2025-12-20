@@ -1,33 +1,34 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { pessoasApi } from '../../services/api';
+import { categoriasApi } from '../../services/api';
 import { Container, Box, PageHeader, Button, Loading } from '../../components';
-import PessoaForm from './PessoaForm';
+import CategoriaForm from './CategoriaForm';
 import { swal } from '../../utils/swal';
+import { FinalidadeCategoria } from '../../types/api';
 import { getFieldError } from '../../helpers/validation';
 
-// Página de cadastro de pessoa
-export default function PessoasCreate() {
+// Página de cadastro de categoria
+export default function CategoriasCreate() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    nome: '',
-    dataNascimento: '',
+    descricao: '',
+    finalidade: FinalidadeCategoria.Despesa,
   });
-  const [errors, setErrors] = useState<{ nome?: string; dataNascimento?: string }>({});
+  const [errors, setErrors] = useState<{ descricao?: string; finalidade?: string }>({});
 
   // Handler para mudanças nos campos
-  const handleNomeChange = (value: string) => {
-    setFormData((prev) => ({ ...prev, nome: value }));
-    if (errors.nome) {
-      setErrors((prev) => ({ ...prev, nome: undefined }));
+  const handleDescricaoChange = (value: string) => {
+    setFormData((prev) => ({ ...prev, descricao: value }));
+    if (errors.descricao) {
+      setErrors((prev) => ({ ...prev, descricao: undefined }));
     }
   };
 
-  const handleDataNascimentoChange = (value: string) => {
-    setFormData((prev) => ({ ...prev, dataNascimento: value }));
-    if (errors.dataNascimento) {
-      setErrors((prev) => ({ ...prev, dataNascimento: undefined }));
+  const handleFinalidadeChange = (value: FinalidadeCategoria) => {
+    setFormData((prev) => ({ ...prev, finalidade: value }));
+    if (errors.finalidade) {
+      setErrors((prev) => ({ ...prev, finalidade: undefined }));
     }
   };
 
@@ -38,34 +39,34 @@ export default function PessoasCreate() {
     setLoading(true);
 
     try {
-      const result = await pessoasApi.create({
-        nome: formData.nome.trim(),
-        dataNascimento: formData.dataNascimento,
+      const result = await categoriasApi.create({
+        descricao: formData.descricao.trim(),
+        finalidade: formData.finalidade,
       });
 
       if (result.success) {
-        swal.successToast('Pessoa cadastrada com sucesso!');
+        swal.successToast('Categoria cadastrada com sucesso!');
         // Redireciona para a listagem após sucesso
-        navigate('/pessoas');
+        navigate('/categorias');
       } else {
-        swal.errorToast(result.errors.join(', ') || 'Erro ao cadastrar pessoa');
+        swal.errorToast(result.errors.join(', ') || 'Erro ao cadastrar categoria');
       }
     } catch (err: any) {
       // Trata erros de validação do ASP.NET Core (status 400 com formato padrão)
       if (err.response?.status === 400 && err.response?.data?.errors) {
         const validationError = err.response.data;
-        const fieldErrors: { nome?: string; dataNascimento?: string } = {};
+        const fieldErrors: { descricao?: string; finalidade?: string } = {};
 
-        const nomeError = getFieldError(validationError, 'nome');
-        const dataNascimentoError = getFieldError(validationError, 'dataNascimento');
+        const descricaoError = getFieldError(validationError, 'descricao');
+        const finalidadeError = getFieldError(validationError, 'finalidade');
 
-        if (nomeError) fieldErrors.nome = nomeError;
-        if (dataNascimentoError) fieldErrors.dataNascimento = dataNascimentoError;
+        if (descricaoError) fieldErrors.descricao = descricaoError;
+        if (finalidadeError) fieldErrors.finalidade = finalidadeError;
 
         setErrors(fieldErrors);
 
         // Se houver erros de validação mas nenhum mapeado para os campos conhecidos, mostra toast
-        if (!nomeError && !dataNascimentoError) {
+        if (!descricaoError && !finalidadeError) {
           const allErrors = Object.values(validationError.errors).flat();
           if (allErrors.length > 0) {
             swal.errorToast(allErrors.join(', '));
@@ -82,14 +83,14 @@ export default function PessoasCreate() {
 
   // Voltar para listagem
   const handleCancel = () => {
-    navigate('/pessoas');
+    navigate('/categorias');
   };
 
   return (
     <Container>
       <PageHeader
-        title="Nova Pessoa"
-        subtitle="Preencha os dados para cadastrar uma nova pessoa"
+        title="Nova Categoria"
+        subtitle="Preencha os dados para cadastrar uma nova categoria"
       />
 
       <Box className="max-w-2xl border-0 shadow-none">
@@ -100,12 +101,12 @@ export default function PessoasCreate() {
         )}
 
         <form onSubmit={handleSubmit}>
-          <PessoaForm
-            nome={formData.nome}
-            dataNascimento={formData.dataNascimento}
+          <CategoriaForm
+            descricao={formData.descricao}
+            finalidade={formData.finalidade}
             errors={errors}
-            onNomeChange={handleNomeChange}
-            onDataNascimentoChange={handleDataNascimentoChange}
+            onDescricaoChange={handleDescricaoChange}
+            onFinalidadeChange={handleFinalidadeChange}
             disabled={loading}
           />
 

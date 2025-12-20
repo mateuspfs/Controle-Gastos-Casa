@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { ApiResult, PessoaDto, PagedResultDto } from '../types/api';
+import type { ApiResult, PessoaDto, PagedResultDto, CategoriaDto } from '../types/api';
 
 // Configuração base do cliente HTTP para comunicação com a API
 const api = axios.create({
@@ -51,6 +51,48 @@ export const pessoasApi = {
   delete: async (id: number): Promise<ApiResult<boolean>> => {
     const response = await api.delete<ApiResult<boolean>>(`/pessoas/${id}`);
     return response.data;
+  },
+};
+
+// Serviço de API para categorias
+export const categoriasApi = {
+  // Lista todas as categorias com paginação, busca e filtro por finalidade
+  getAll: async (skip = 0, take = 20, searchTerm?: string, finalidade?: number): Promise<ApiResult<PagedResultDto<CategoriaDto>>> => {
+    const params: { skip: number; take: number; searchTerm?: string; finalidade?: number } = { skip, take };
+    if (searchTerm) {
+      params.searchTerm = searchTerm;
+    }
+    if (finalidade !== undefined && finalidade !== null) {
+      params.finalidade = finalidade;
+    }
+    const response = await api.get<ApiResult<PagedResultDto<CategoriaDto>>>('/categorias', { params });
+    return response.data;
+  },
+
+  // Busca categoria por ID
+  getById: async (id: number): Promise<ApiResult<CategoriaDto>> => {
+    const response = await api.get<ApiResult<CategoriaDto>>(`/categorias/${id}`);
+    return response.data;
+  },
+
+  // Cria nova categoria
+  create: async (categoria: Omit<CategoriaDto, 'id'>): Promise<ApiResult<CategoriaDto>> => {
+    try {
+      const response = await api.post<ApiResult<CategoriaDto>>('/categorias', categoria);
+      return response.data;
+    } catch (error: any) {
+      throw error;
+    }
+  },
+
+  // Atualiza categoria existente
+  update: async (id: number, categoria: Omit<CategoriaDto, 'id'>): Promise<ApiResult<CategoriaDto>> => {
+    try {
+      const response = await api.put<ApiResult<CategoriaDto>>(`/categorias/${id}`, categoria);
+      return response.data;
+    } catch (error: any) {
+      throw error;
+    }
   },
 };
 

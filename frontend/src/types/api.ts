@@ -33,3 +33,17 @@ export interface PessoaDto {
   idade?: string;
 }
 
+export const FinalidadeCategoria = {
+  Despesa: 1,
+  Receita: 2,
+  Ambas: 3,
+} as const;
+
+export type FinalidadeCategoria = typeof FinalidadeCategoria[keyof typeof FinalidadeCategoria];
+
+export interface CategoriaDto {
+  id?: number;
+  descricao: string;
+  finalidade: FinalidadeCategoria;
+}
+

@@ -36,11 +36,12 @@ builder.Services.AddApplication();
 
 var app = builder.Build();
 
-// Executa seeder automaticamente se não houver pessoas no banco
+// Executa seeders automaticamente se as tabelas estiverem vazias
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     await PessoaSeeder.SeedAsync(context);
+    await CategoriaSeeder.SeedAsync(context);
 }
 
 app.UseSwagger();

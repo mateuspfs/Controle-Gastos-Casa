@@ -12,6 +12,8 @@ import PessoasCreate from './pages/pessoas/Create';
 import PessoasUpdate from './pages/pessoas/Update';
 import TransacoesList from './pages/transacoes/List';
 import CategoriasList from './pages/categorias/List';
+import CategoriasCreate from './pages/categorias/Create';
+import CategoriasUpdate from './pages/categorias/Update';
 
 function App() {
   const location = useLocation();
@@ -22,8 +24,10 @@ function App() {
     if (path === '/pessoas/novo') return 'Cadastro de Pessoa';
     if (path.startsWith('/pessoas/editar')) return 'Edição de Pessoa';
     if (path.startsWith('/pessoas')) return 'Listagem de pessoas';
-    if (path.startsWith('/transacoes')) return 'Transações';
+    if (path === '/categorias/novo') return 'Cadastro de Categoria';
+    if (path.startsWith('/categorias/editar')) return 'Edição de Categoria';
     if (path.startsWith('/categorias')) return 'Categorias';
+    if (path.startsWith('/transacoes')) return 'Transações';
     return 'Visão geral';
   }, [path]);
 
@@ -53,6 +57,8 @@ function App() {
                 <Route path="/pessoas/editar/:id" element={<PessoasUpdate />} />
                 <Route path="/transacoes" element={<TransacoesList />} />
                 <Route path="/categorias" element={<CategoriasList />} />
+                <Route path="/categorias/novo" element={<CategoriasCreate />} />
+                <Route path="/categorias/editar/:id" element={<CategoriasUpdate />} />
               </Routes>
             </section>
           </main>
