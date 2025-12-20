@@ -16,6 +16,19 @@ builder.Services.AddSwaggerGen(c =>
         Version = "v1"
     });
 });
+
+// Configuração de CORS para permitir requisições do frontend
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy
+            .AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader();
+    });
+});
+
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddApplication();
 
@@ -23,6 +36,9 @@ var app = builder.Build();
 
 app.UseSwagger();
 app.UseSwaggerUI();
+
+// Habilita CORS antes de outros middlewares
+app.UseCors("AllowFrontend");
 
 app.UseHttpsRedirection();
 

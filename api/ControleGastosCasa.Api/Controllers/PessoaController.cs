@@ -34,13 +34,17 @@ public class PessoaController(IPessoaService pessoasService) : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<ApiResult<IEnumerable<PessoaDto>>>> GetAllAsync([FromQuery] int skip = 0, [FromQuery] int take = 20, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<ApiResult<PagedResultDto<PessoaDto>>>> GetAllAsync(
+        [FromQuery] int skip = 0, 
+        [FromQuery] int take = 20, 
+        [FromQuery] string? searchTerm = null, 
+        CancellationToken cancellationToken = default)
     {
-        var pessoas = await pessoasService.GetAllAsync(skip, take, cancellationToken);
+        var pessoas = await pessoasService.GetAllAsync(skip, take, searchTerm, cancellationToken);
         if (!pessoas.Success || pessoas.Data is null)
             return BadRequest(pessoas);
 
-        return Ok(ApiResult<IEnumerable<PessoaDto>>.Ok(pessoas.Data));
+        return Ok(pessoas);
     }
 
     [HttpDelete("{id:int}")]

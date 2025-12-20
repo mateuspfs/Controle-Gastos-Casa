@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ControleGastosCasa.Domain\ControleGastosCasa.Domain.csproj" />
+    <ProjectReference Include="..\ControleGastosCasa.Infrastructure\ControleGastosCasa.Infrastructure.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

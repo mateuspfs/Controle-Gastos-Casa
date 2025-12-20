@@ -1,7 +1,6 @@
-using ControleGastosCasa.Domain.Entities;
-using ControleGastosCasa.Domain.Repositories;
 using ControleGastosCasa.Infrastructure.Persistence;
 using ControleGastosCasa.Infrastructure.Repositories;
+using ControleGastosCasa.Infrastructure.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,9 +17,13 @@ public static class DependencyInjection
             options.UseNpgsql(connectionString, npgsql =>
                 npgsql.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName)));
 
-        services.AddScoped<IGenericRepository<Pessoa>, PessoaRepository>();
-        services.AddScoped<IGenericRepository<Categoria>, CategoriaRepository>();
-        services.AddScoped<IGenericRepository<Transacao>, TransacaoRepository>();
+        // Registro genérico do repositório base
+        services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+
+        // Registro dos repositórios específicos com suas interfaces
+        services.AddScoped<IPessoaRepository, PessoaRepository>();
+        services.AddScoped<ICategoriaRepository, CategoriaRepository>();
+        services.AddScoped<ITransacaoRepository, TransacaoRepository>();
 
         return services;
     }

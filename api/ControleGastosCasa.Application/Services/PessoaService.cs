@@ -1,9 +1,11 @@
+using System;
+using System.Linq.Expressions;
 using AutoMapper;
 using ControleGastosCasa.Application.Dtos;
 using ControleGastosCasa.Application.Helpers;
 using ControleGastosCasa.Application.Services.Interfaces;
 using ControleGastosCasa.Domain.Entities;
-using ControleGastosCasa.Domain.Repositories;
+using ControleGastosCasa.Infrastructure.Repositories.Interfaces;
 
 namespace ControleGastosCasa.Application.Services;
 
@@ -25,18 +27,51 @@ public class PessoaService(IGenericRepository<Pessoa> pessoasRepository, IMapper
         }
     }
 
-    // Retorna pessoas paginadas (skip/take).
-    public async Task<ApiResult<IReadOnlyList<PessoaDto>>> GetAllAsync(int skip = 0, int take = 20, CancellationToken cancellationToken = default)
+    // Retorna pessoas paginadas com filtro opcional por nome
+    public async Task<ApiResult<PagedResultDto<PessoaDto>>> GetAllAsync(int skip = 0, int take = 20, string? searchTerm = null, CancellationToken cancellationToken = default)
     {
         try
         {
-            var pessoas = await pessoasRepository.PaginateAsync(skip, take, cancellationToken);
+            // Garante valores seguros para paginação
+            var safeSkip = Math.Max(0, skip);
+            var safeTake = Math.Max(1, take);
+
+            // Normaliza o termo de busca (remove espaços extras)
+            var normalizedSearchTerm = string.IsNullOrWhiteSpace(searchTerm) ? null : searchTerm.Trim();
+
+            // Cria expressão de filtro where se searchTerm fornecido
+            Expression<Func<Pessoa, bool>>? where = null;
+            if (!string.IsNullOrWhiteSpace(normalizedSearchTerm)) where = p => p.Nome.Contains(normalizedSearchTerm);
+
+            // Busca os itens paginados e o total de registros sequencialmente
+            var pessoas = await pessoasRepository.PaginateAsync(safeSkip, safeTake, where, cancellationToken);
+            var totalItems = await pessoasRepository.CountAsync(where, cancellationToken);
+
+            // Mapeia os DTOs
             var mapped = pessoas.Select(p => mapper.Map<Pessoa, PessoaDto>(p)).ToList();
-            return ApiResult<IReadOnlyList<PessoaDto>>.Ok(mapped);
+
+            // Calcula informações de paginação
+            var currentPage = (safeSkip / safeTake) + 1;
+            var totalPages = (int)Math.Ceiling(totalItems / (double)safeTake);
+            var hasPreviousPage = currentPage > 1;
+            var hasNextPage = currentPage < totalPages;
+
+            var result = new PagedResultDto<PessoaDto>
+            {
+                Items = mapped,
+                CurrentPage = currentPage,
+                PageSize = safeTake,
+                TotalItems = totalItems,
+                TotalPages = totalPages,
+                HasPreviousPage = hasPreviousPage,
+                HasNextPage = hasNextPage,
+            };
+
+            return ApiResult<PagedResultDto<PessoaDto>>.Ok(result);
         }
-        catch
+        catch(Exception e)
         {
-            return ApiResult<IReadOnlyList<PessoaDto>>.Fail("Ocorreu um erro ao listar pessoas");
+            return ApiResult<PagedResultDto<PessoaDto>>.Fail("Ocorreu um erro ao listar pessoas");
         }
     }
 

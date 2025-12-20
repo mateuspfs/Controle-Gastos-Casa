@@ -1,7 +1,8 @@
 using System;
 using System.Linq;
-using ControleGastosCasa.Domain.Repositories;
+using System.Linq.Expressions;
 using ControleGastosCasa.Infrastructure.Persistence;
+using ControleGastosCasa.Infrastructure.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace ControleGastosCasa.Infrastructure.Repositories;
@@ -24,15 +25,31 @@ public class GenericRepository<T>(AppDbContext context) : IGenericRepository<T> 
         return await Context.Set<T>().AsNoTracking().ToListAsync(cancellationToken);
     }
 
-    public virtual async Task<IReadOnlyList<T>> PaginateAsync(int skip = 0, int take = 20, CancellationToken cancellationToken = default)
+    public virtual async Task<IReadOnlyList<T>> PaginateAsync(int skip = 0, int take = 20, Expression<Func<T, bool>>? where = null, CancellationToken cancellationToken = default)
     {
         var safeSkip = Math.Max(0, skip);
         var safeTake = Math.Max(1, take);
-        return await Context.Set<T>()
-            .AsNoTracking()
+        
+        var query = Context.Set<T>().AsNoTracking();
+        
+        // Aplica filtro where se fornecido
+        if (where != null) query = query.Where(where);
+        
+        return await query
             .Skip(safeSkip)
             .Take(safeTake)
             .ToListAsync(cancellationToken);
+    }
+
+    public virtual async Task<int> CountAsync(Expression<Func<T, bool>>? where = null, CancellationToken cancellationToken = default)
+    {
+        var query = Context.Set<T>().AsNoTracking();
+        
+        // Aplica filtro where se fornecido
+        if (where != null) query = query.Where(where);
+        
+        
+        return await query.CountAsync(cancellationToken);
     }
 
     public virtual async Task AddAsync(T entity, CancellationToken cancellationToken = default)

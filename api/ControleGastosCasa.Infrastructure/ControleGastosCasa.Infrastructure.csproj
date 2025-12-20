@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\ControleGastosCasa.Application\ControleGastosCasa.Application.csproj" />
     <ProjectReference Include="..\ControleGastosCasa.Domain\ControleGastosCasa.Domain.csproj" />
   </ItemGroup>
 
