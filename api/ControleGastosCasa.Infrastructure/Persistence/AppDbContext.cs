@@ -36,13 +36,14 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             builder.Property(t => t.Descricao).IsRequired().HasMaxLength(200);
             builder.Property(t => t.Valor).IsRequired().HasColumnType("numeric(18,2)");
             builder.Property(t => t.Tipo).IsRequired();
+            builder.Property(t => t.DataTransacao).IsRequired().HasColumnType("date");
 
-            builder.HasOne<Pessoa>()
+            builder.HasOne(t => t.Pessoa)
                 .WithMany()
                 .HasForeignKey(t => t.PessoaId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            builder.HasOne<Categoria>()
+            builder.HasOne(t => t.Categoria)
                 .WithMany()
                 .HasForeignKey(t => t.CategoriaId)
                 .OnDelete(DeleteBehavior.Restrict);

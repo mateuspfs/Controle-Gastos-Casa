@@ -49,18 +49,29 @@ public class CategoriaController(ICategoriaService categoriasService) : Controll
     }
 
     [HttpGet]
-    public async Task<ActionResult<ApiResult<PagedResultDto<CategoriaDto>>>> GetAllAsync(
+    public async Task<ActionResult> GetAllAsync(
         [FromQuery] int skip = 0, 
         [FromQuery] int take = 20, 
         [FromQuery] string? searchTerm = null,
         [FromQuery] int? finalidade = null,
         CancellationToken cancellationToken = default)
     {
-        var categorias = await categoriasService.GetAllAsync(skip, take, searchTerm, finalidade, cancellationToken);
-        if (!categorias.Success || categorias.Data is null)
-            return BadRequest(categorias);
+        // Se take for 0, retorna todos os registros (sem paginação)
+        if (take == 0)
+        {
+            var categorias = await categoriasService.GetAllAsync(searchTerm, finalidade, cancellationToken);
+            if (!categorias.Success || categorias.Data is null)
+                return BadRequest(categorias);
 
-        return Ok(categorias);
+            return Ok(categorias);
+        }
+
+        // Caso contrário, retorna paginado
+        var categoriasPaginadas = await categoriasService.GetPaginateAsync(skip, take, searchTerm, finalidade, cancellationToken);
+        if (!categoriasPaginadas.Success || categoriasPaginadas.Data is null)
+            return BadRequest(categoriasPaginadas);
+
+        return Ok(categoriasPaginadas);
     }
 }
 

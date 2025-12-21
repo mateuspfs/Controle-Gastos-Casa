@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { pessoasApi } from '../../services/api';
-import type { PessoaDto } from '../../types/api';
+import type { PagedResultDto, PessoaDto } from '../../types/api';
 import { formatarDataBr } from '../../helpers/masks';
 import {
   Container,
@@ -47,13 +47,14 @@ export default function PessoasList() {
       const result = await pessoasApi.getAll(currentSkip, take, currentSearchTerm || undefined);
       
       if (result.success && result.data) {
-        setPessoas(result.data.items);
+        const pagedData = result.data as PagedResultDto<PessoaDto>;
+        setPessoas(pagedData.items);
         setPagination({
-          currentPage: result.data.currentPage,
-          totalItems: result.data.totalItems,
-          totalPages: result.data.totalPages,
-          hasPreviousPage: result.data.hasPreviousPage,
-          hasNextPage: result.data.hasNextPage,
+          currentPage: pagedData.currentPage,
+          totalItems: pagedData.totalItems,
+          totalPages: pagedData.totalPages,
+          hasPreviousPage: pagedData.hasPreviousPage,
+          hasNextPage: pagedData.hasNextPage,
         });
       } else {
         setError(result.errors.join(', ') || 'Erro ao carregar pessoas');

@@ -48,17 +48,28 @@ public class PessoaController(IPessoaService pessoasService) : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<ApiResult<PagedResultDto<PessoaDto>>>> GetAllAsync(
+    public async Task<ActionResult> GetAllAsync(
         [FromQuery] int skip = 0, 
         [FromQuery] int take = 20, 
         [FromQuery] string? searchTerm = null, 
         CancellationToken cancellationToken = default)
     {
-        var pessoas = await pessoasService.GetAllAsync(skip, take, searchTerm, cancellationToken);
-        if (!pessoas.Success || pessoas.Data is null)
-            return BadRequest(pessoas);
+        // Se take for 0, retorna todos os registros (sem paginação)
+        if (take == 0)
+        {
+            var pessoas = await pessoasService.GetAllAsync(searchTerm, cancellationToken);
+            if (!pessoas.Success || pessoas.Data is null)
+                return BadRequest(pessoas);
 
-        return Ok(pessoas);
+            return Ok(pessoas);
+        }
+
+        // Caso contrário, retorna paginado
+        var pessoasPaginadas = await pessoasService.GetPaginateAsync(skip, take, searchTerm, cancellationToken);
+        if (!pessoasPaginadas.Success || pessoasPaginadas.Data is null)
+            return BadRequest(pessoasPaginadas);
+
+        return Ok(pessoasPaginadas);
     }
 
     [HttpDelete("{id:int}")]

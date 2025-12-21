@@ -49,7 +49,7 @@ public class CategoriaService(IGenericRepository<Categoria> categoriasRepository
     }
 
     // Retorna categorias paginadas com filtro opcional por descrição e finalidade
-    public async Task<ApiResult<PagedResultDto<CategoriaDto>>> GetAllAsync(int skip = 0, int take = 20, string? searchTerm = null, int? finalidade = null, CancellationToken cancellationToken = default)
+    public async Task<ApiResult<PagedResultDto<CategoriaDto>>> GetPaginateAsync(int skip = 0, int take = 20, string? searchTerm = null, int? finalidade = null, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -78,11 +78,11 @@ public class CategoriaService(IGenericRepository<Categoria> categoriasRepository
                 where = c => c.Finalidade == finalidadeValue;
             }
 
-            // Ordena por ID descendente (últimos registros primeiro)
+            // Ordena por Id
             Expression<Func<Categoria, object>> orderBy = c => c.Id;
 
             // Busca os itens paginados e o total de registros sequencialmente
-            var categorias = await categoriasRepository.PaginateAsync(safeSkip, safeTake, where, orderBy, cancellationToken);
+            var categorias = await categoriasRepository.PaginateAsync(safeSkip, safeTake, where, orderBy, OrderDirection.Descending, cancellationToken);
             var totalItems = await categoriasRepository.CountAsync(where, cancellationToken);
 
             // Mapeia os DTOs
@@ -110,6 +110,49 @@ public class CategoriaService(IGenericRepository<Categoria> categoriasRepository
         catch
         {
             return ApiResult<PagedResultDto<CategoriaDto>>.Fail("Ocorreu um erro ao listar categorias");
+        }
+    }
+
+    // Retorna todas as categorias com filtro opcional por descrição e finalidade (sem paginação)
+    public async Task<ApiResult<IReadOnlyList<CategoriaDto>>> GetAllAsync(string? searchTerm = null, int? finalidade = null, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            // Normaliza o termo de busca (remove espaços extras)
+            var normalizedSearchTerm = string.IsNullOrWhiteSpace(searchTerm) ? null : searchTerm.Trim();
+
+            // Cria expressão de filtro where combinando searchTerm e finalidade
+            Expression<Func<Categoria, bool>>? where = null;
+            
+            if (!string.IsNullOrWhiteSpace(normalizedSearchTerm) && finalidade.HasValue)
+            {
+                var finalidadeValue = (FinalidadeCategoria)finalidade.Value;
+                where = c => c.Descricao.Contains(normalizedSearchTerm) && c.Finalidade == finalidadeValue;
+            }
+            else if (!string.IsNullOrWhiteSpace(normalizedSearchTerm))
+            {
+                where = c => c.Descricao.Contains(normalizedSearchTerm);
+            }
+            else if (finalidade.HasValue)
+            {
+                var finalidadeValue = (FinalidadeCategoria)finalidade.Value;
+                where = c => c.Finalidade == finalidadeValue;
+            }
+
+            // Ordena por descrição ascendente
+            Expression<Func<Categoria, object>> orderBy = c => c.Descricao;
+
+            // Busca todos os registros usando GetAllAsync do repository
+            var categorias = await categoriasRepository.GetAllAsync(where, orderBy, OrderDirection.Ascending, cancellationToken);
+
+            // Mapeia os DTOs
+            var mapped = categorias.Select(c => mapper.Map<Categoria, CategoriaDto>(c)).ToList();
+
+            return ApiResult<IReadOnlyList<CategoriaDto>>.Ok(mapped);
+        }
+        catch
+        {
+            return ApiResult<IReadOnlyList<CategoriaDto>>.Fail("Ocorreu um erro ao listar categorias");
         }
     }
 

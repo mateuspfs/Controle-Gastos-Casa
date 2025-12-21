@@ -26,7 +26,24 @@ public class GenericRepository<T>(AppDbContext context) : IGenericRepository<T> 
         return await Context.Set<T>().AsNoTracking().ToListAsync(cancellationToken);
     }
 
-    public virtual async Task<IReadOnlyList<T>> PaginateAsync(int skip = 0, int take = 20, Expression<Func<T, bool>>? where = null, Expression<Func<T, object>>? orderBy = null, CancellationToken cancellationToken = default)
+    public virtual async Task<IReadOnlyList<T>> GetAllAsync(Expression<Func<T, bool>>? where = null, Expression<Func<T, object>>? orderBy = null, OrderDirection orderDirection = OrderDirection.Descending, CancellationToken cancellationToken = default)
+    {
+        var query = Context.Set<T>().AsNoTracking();
+        
+        // Aplica filtro where se fornecido
+        if (where != null) query = query.Where(where);
+        // Aplica ordenação se fornecida
+        if (orderBy != null)
+        {
+            query = orderDirection == OrderDirection.Ascending
+                ? query.OrderBy(orderBy)
+                : query.OrderByDescending(orderBy);
+        }
+        
+        return await query.ToListAsync(cancellationToken);
+    }
+
+    public virtual async Task<IReadOnlyList<T>> PaginateAsync(int skip = 0, int take = 20, Expression<Func<T, bool>>? where = null, Expression<Func<T, object>>? orderBy = null, OrderDirection orderDirection = OrderDirection.Descending, CancellationToken cancellationToken = default)
     {
         var safeSkip = Math.Max(0, skip);
         var safeTake = Math.Max(1, take);
@@ -36,7 +53,12 @@ public class GenericRepository<T>(AppDbContext context) : IGenericRepository<T> 
         // Aplica filtro where se fornecido
         if (where != null) query = query.Where(where);
         // Aplica ordenação se fornecida
-        if (orderBy != null) query = query.OrderByDescending(orderBy);
+        if (orderBy != null)
+        {
+            query = orderDirection == OrderDirection.Ascending
+                ? query.OrderBy(orderBy)
+                : query.OrderByDescending(orderBy);
+        }
         
         return await query
             .Skip(safeSkip)

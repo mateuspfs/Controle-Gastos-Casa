@@ -15,6 +15,7 @@ public static class DependencyInjection
         // Registro dos services espec�ficos com suas interfaces
         services.AddScoped<IPessoaService, PessoaService>();
         services.AddScoped<ICategoriaService, CategoriaService>();
+        services.AddScoped<ITransacaoService, TransacaoService>();
 
         return services;
     }

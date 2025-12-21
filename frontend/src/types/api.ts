@@ -47,3 +47,22 @@ export interface CategoriaDto {
   finalidade: FinalidadeCategoria;
 }
 
+export const TipoTransacao = {
+  Despesa: 1,
+  Receita: 2,
+} as const;
+
+export type TipoTransacao = typeof TipoTransacao[keyof typeof TipoTransacao];
+
+export interface TransacaoDto {
+  id?: number;
+  descricao: string;
+  valor: number;
+  tipo: TipoTransacao;
+  dataTransacao: string;
+  categoriaId: number;
+  pessoaId: number;
+  pessoa?: PessoaDto;
+  categoria?: CategoriaDto;
+}
+

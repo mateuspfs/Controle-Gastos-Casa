@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { categoriasApi } from '../../services/api';
-import type { CategoriaDto } from '../../types/api';
+import type { CategoriaDto, PagedResultDto } from '../../types/api';
 import { FinalidadeCategoria } from '../../types/api';
 import { Select } from '../../components/Form';
 import {
@@ -68,13 +68,14 @@ export default function CategoriasList() {
       const result = await categoriasApi.getAll(currentSkip, take, currentSearchTerm || undefined, currentFinalidade ?? undefined);
       
       if (result.success && result.data) {
-        setCategorias(result.data.items);
+        const pagedData = result.data as PagedResultDto<CategoriaDto>;
+        setCategorias(pagedData.items);
         setPagination({
-          currentPage: result.data.currentPage,
-          totalItems: result.data.totalItems,
-          totalPages: result.data.totalPages,
-          hasPreviousPage: result.data.hasPreviousPage,
-          hasNextPage: result.data.hasNextPage,
+          currentPage: pagedData.currentPage,
+          totalItems: pagedData.totalItems,
+          totalPages: pagedData.totalPages,
+          hasPreviousPage: pagedData.hasPreviousPage,
+          hasNextPage: pagedData.hasNextPage,
         });
       } else {
         setError(result.errors.join(', ') || 'Erro ao carregar categorias');

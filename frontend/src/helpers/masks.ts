@@ -17,3 +17,18 @@ export const formatarDataBr = (data: string | Date | null | undefined): string =
   }
 };
 
+/**
+ * Formata um valor monetário no padrão brasileiro (R$ 0,00)
+ * @param valor - Valor numérico
+ * @returns String formatada no padrão brasileiro
+ */
+export const formatarMoeda = (valor: number | string): string => {
+  const numValor = typeof valor === 'string' ? parseFloat(valor) : valor;
+  if (isNaN(numValor)) return 'R$ 0,00';
+  
+  return new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+  }).format(numValor);
+};
+

@@ -50,7 +50,7 @@ public class PessoaService(IGenericRepository<Pessoa> pessoasRepository, IMapper
     }
 
     // Retorna pessoas paginadas com filtro opcional por nome
-    public async Task<ApiResult<PagedResultDto<PessoaDto>>> GetAllAsync(int skip = 0, int take = 20, string? searchTerm = null, CancellationToken cancellationToken = default)
+    public async Task<ApiResult<PagedResultDto<PessoaDto>>> GetPaginateAsync(int skip = 0, int take = 20, string? searchTerm = null, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -65,11 +65,11 @@ public class PessoaService(IGenericRepository<Pessoa> pessoasRepository, IMapper
             Expression<Func<Pessoa, bool>>? where = null;
             if (!string.IsNullOrWhiteSpace(normalizedSearchTerm)) where = p => p.Nome.Contains(normalizedSearchTerm);
 
-            // Ordena por ID descendente (últimos registros primeiro)
+            // Ordena por Id
             Expression<Func<Pessoa, object>> orderBy = p => p.Id;
 
             // Busca os itens paginados e o total de registros sequencialmente
-            var pessoas = await pessoasRepository.PaginateAsync(safeSkip, safeTake, where, orderBy, cancellationToken);
+            var pessoas = await pessoasRepository.PaginateAsync(safeSkip, safeTake, where, orderBy, OrderDirection.Descending, cancellationToken);
             var totalItems = await pessoasRepository.CountAsync(where, cancellationToken);
 
             // Mapeia os DTOs
@@ -97,6 +97,34 @@ public class PessoaService(IGenericRepository<Pessoa> pessoasRepository, IMapper
         catch(Exception e)
         {
             return ApiResult<PagedResultDto<PessoaDto>>.Fail("Ocorreu um erro ao listar pessoas");
+        }
+    }
+
+    // Retorna todas as pessoas com filtro opcional por nome (sem paginação)
+    public async Task<ApiResult<IReadOnlyList<PessoaDto>>> GetAllAsync(string? searchTerm = null, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            // Normaliza o termo de busca (remove espaços extras)
+            var normalizedSearchTerm = string.IsNullOrWhiteSpace(searchTerm) ? null : searchTerm.Trim();
+
+            // Cria expressão de filtro where se searchTerm fornecido
+            Expression<Func<Pessoa, bool>>? where = null;
+            if (!string.IsNullOrWhiteSpace(normalizedSearchTerm)) where = p => p.Nome.Contains(normalizedSearchTerm);
+            // Ordena por nome ascendente
+            Expression<Func<Pessoa, object>> orderBy = p => p.Nome;
+
+            // Busca todos os registros usando GetAllAsync do repository
+            var pessoas = await pessoasRepository.GetAllAsync(where, orderBy, OrderDirection.Ascending, cancellationToken);
+
+            // Mapeia os DTOs
+            var mapped = pessoas.Select(p => mapper.Map<Pessoa, PessoaDto>(p)).ToList();
+
+            return ApiResult<IReadOnlyList<PessoaDto>>.Ok(mapped);
+        }
+        catch
+        {
+            return ApiResult<IReadOnlyList<PessoaDto>>.Fail("Ocorreu um erro ao listar pessoas");
         }
     }
 

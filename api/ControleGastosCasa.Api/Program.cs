@@ -42,6 +42,7 @@ using (var scope = app.Services.CreateScope())
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     await PessoaSeeder.SeedAsync(context);
     await CategoriaSeeder.SeedAsync(context);
+    await TransacaoSeeder.SeedAsync(context);
 }
 
 app.UseSwagger();
