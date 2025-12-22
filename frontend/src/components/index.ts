@@ -13,5 +13,6 @@ export { default as Pagination } from './Pagination';
 export { default as ActionButtons } from './ActionButtons';
 export { default as Search } from './Search';
 export { default as ColoredText } from './ColoredText';
+export { default as TotaisGerais } from './TotaisGerais';
 export { Input, Select } from './Form';
 

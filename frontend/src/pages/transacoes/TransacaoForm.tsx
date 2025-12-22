@@ -1,4 +1,4 @@
-import { Input, Select } from '../../components/Form';
+import { Input, Select, CurrencyInput } from '../../components/Form';
 import { TipoTransacao } from '../../types/api';
 import type { PessoaDto, CategoriaDto } from '../../types/api';
 
@@ -85,16 +85,13 @@ export default function TransacaoForm({
       />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Input
+        <CurrencyInput
           label="Valor"
-          type="number"
-          step="0.01"
-          min="0.01"
           value={valor}
-          onChange={(e) => onValorChange(e.target.value)}
-          placeholder="0.00"
+          onChange={onValorChange}
           error={errors.valor}
           disabled={disabled}
+          required
         />
 
         <Select

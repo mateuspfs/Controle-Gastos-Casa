@@ -16,8 +16,9 @@ import {
 import TransacaoForm from './TransacaoForm';
 import { swal } from '../../utils/swal';
 import { TipoTransacao } from '../../types/api';
-import type { TransacaoDto, PessoaDto, CategoriaDto } from '../../types/api';
+import type { PessoaDto, CategoriaDto } from '../../types/api';
 import { getFieldError } from '../../helpers/validation';
+import { desformatarMoeda } from '../../helpers/masks';
 
 // Página de edição de transação
 export default function TransacoesUpdate() {
@@ -28,7 +29,14 @@ export default function TransacoesUpdate() {
   const [error, setError] = useState<string | null>(null);
   const [pessoas, setPessoas] = useState<PessoaDto[]>([]);
   const [categorias, setCategorias] = useState<CategoriaDto[]>([]);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    descricao: string;
+    valor: string;
+    tipo: TipoTransacao;
+    dataTransacao: string;
+    categoriaId: number;
+    pessoaId: number;
+  }>({
     descricao: '',
     valor: '',
     tipo: TipoTransacao.Despesa,
@@ -69,7 +77,7 @@ export default function TransacoesUpdate() {
           const transacao = transacaoResult.data;
           setFormData({
             descricao: transacao.descricao || '',
-            valor: transacao.valor.toString() || '',
+            valor: transacao.valor.toString() || '0',
             tipo: transacao.tipo,
             dataTransacao: transacao.dataTransacao
               ? new Date(transacao.dataTransacao).toISOString().split('T')[0]
@@ -155,7 +163,8 @@ export default function TransacoesUpdate() {
 
     try {
       // Validação no frontend antes de enviar
-      const valorNumero = parseFloat(formData.valor);
+      const valorDesformatado = desformatarMoeda(formData.valor);
+      const valorNumero = parseFloat(valorDesformatado);
       if (isNaN(valorNumero) || valorNumero <= 0) {
         setErrors({ valor: 'O valor deve ser maior que zero.' });
         setLoading(false);

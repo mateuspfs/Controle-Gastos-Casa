@@ -32,3 +32,15 @@ export const formatarMoeda = (valor: number | string): string => {
   }).format(numValor);
 };
 
+/**
+ * Remove formatação de valor monetário, retornando apenas números
+ * @param valor - String formatada (ex: "2.500,98")
+ * @returns String apenas com números (ex: "2500.98")
+ */
+export const desformatarMoeda = (valor: string): string => {
+  if (!valor) return '';
+  // Remove tudo exceto números e vírgula/ponto
+  const apenasNumeros = valor.replace(/[^\d,.-]/g, '');
+  // Substitui vírgula por ponto para conversão
+  return apenasNumeros.replace(',', '.');
+};
