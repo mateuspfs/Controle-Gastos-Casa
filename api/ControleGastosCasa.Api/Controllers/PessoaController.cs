@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace ControleGastosCasa.Api.Controllers;
 
 [ApiController]
-[Route("pessoas")]
+[Route("api/pessoas")]
 public class PessoaController(IPessoaService pessoasService) : ControllerBase
 {
     [HttpPost]

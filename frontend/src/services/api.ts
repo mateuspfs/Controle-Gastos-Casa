@@ -2,8 +2,9 @@ import axios from 'axios';
 import type { ApiResult, PessoaDto, PessoaTotaisDto, PagedResultDto, CategoriaDto, CategoriaTotaisDto, TransacaoDto, TotaisGeraisDto } from '../types/api';
 
 // Configuração base do cliente HTTP para comunicação com a API
+const baseURL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:5027' : '');
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:5027' : ''),
+  baseURL: baseURL.endsWith('/api') ? baseURL : `${baseURL}/api`,
   headers: {
     'Content-Type': 'application/json',
   },

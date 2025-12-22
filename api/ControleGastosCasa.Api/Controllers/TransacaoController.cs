@@ -7,7 +7,7 @@ using ControleGastosCasa.Domain.Enums;
 namespace ControleGastosCasa.Api.Controllers;
 
 [ApiController]
-[Route("transacoes")]
+[Route("api/transacoes")]
 public class TransacaoController(ITransacaoService transacoesService) : ControllerBase
 {
     [HttpPost]
