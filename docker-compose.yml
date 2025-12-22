@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  # Banco de dados PostgreSQL
+  postgres:
+    image: postgres:16
+    container_name: controle-gastos-postgres
+    environment:
+      POSTGRES_USER: controle
+      POSTGRES_PASSWORD: controle
+      POSTGRES_DB: controle_gastos
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U controle -d controle_gastos"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - controle-gastos-network
+
+  # API .NET
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: controle-gastos-api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__Postgres=Host=postgres;Port=5432;Database=controle_gastos;Username=controle;Password=controle;Include Error Detail=true
+    ports:
+      - "5027:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - controle-gastos-network
+    restart: unless-stopped
+
+  # Frontend React
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - VITE_API_URL=http://localhost:5027
+    container_name: controle-gastos-frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - api
+    networks:
+      - controle-gastos-network
+    restart: unless-stopped
+
+networks:
+  controle-gastos-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+
