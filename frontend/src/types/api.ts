@@ -33,6 +33,16 @@ export interface PessoaDto {
   idade?: string;
 }
 
+export interface PessoaTotaisDto {
+  id: number;
+  nome: string;
+  dataNascimento: string;
+  idade: number;
+  totalReceitas: number;
+  totalDespesas: number;
+  saldo: number;
+}
+
 export const FinalidadeCategoria = {
   Despesa: 1,
   Receita: 2,
@@ -64,5 +74,11 @@ export interface TransacaoDto {
   pessoaId: number;
   pessoa?: PessoaDto;
   categoria?: CategoriaDto;
+}
+
+export interface TotaisGeraisDto {
+  totalReceitas: number;
+  totalDespesas: number;
+  saldoLiquido: number;
 }
 

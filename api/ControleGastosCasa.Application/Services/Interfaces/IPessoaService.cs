@@ -7,9 +7,10 @@ public interface IPessoaService
 {
     Task<ApiResult<PessoaDto>> CreateAsync(PessoaDto model, CancellationToken cancellationToken = default);
     Task<ApiResult<PessoaDto>> UpdateAsync(int id, PessoaDto model, CancellationToken cancellationToken = default);
-    Task<ApiResult<PagedResultDto<PessoaDto>>> GetPaginateAsync(int skip = 0, int take = 20, string? searchTerm = null, CancellationToken cancellationToken = default);
+    Task<ApiResult<PagedResultDto<PessoaTotaisDto>>> GetPaginateAsync(int skip = 0, int take = 20, string? searchTerm = null, CancellationToken cancellationToken = default);
     Task<ApiResult<IReadOnlyList<PessoaDto>>> GetAllAsync(string? searchTerm = null, CancellationToken cancellationToken = default);
     Task<ApiResult<PessoaDto>> GetByIdAsync(int id, CancellationToken cancellationToken = default);
     Task<ApiResult<bool>> DeleteAsync(int id, CancellationToken cancellationToken = default);
+    Task<ApiResult<TotaisGeraisDto>> GetTotaisGeraisAsync(CancellationToken cancellationToken = default);
 }
 

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { ApiResult, PessoaDto, PagedResultDto, CategoriaDto, TransacaoDto } from '../types/api';
+import type { ApiResult, PessoaDto, PessoaTotaisDto, PagedResultDto, CategoriaDto, TransacaoDto, TotaisGeraisDto } from '../types/api';
 
 // Configuração base do cliente HTTP para comunicação com a API
 const api = axios.create({
@@ -14,12 +14,12 @@ export const pessoasApi = {
   // Lista todas as pessoas com paginação e busca
   // Quando take = 0, retorna ApiResult<IReadOnlyList<PessoaDto>>
   // Caso contrário, retorna ApiResult<PagedResultDto<PessoaDto>>
-  getAll: async (skip = 0, take = 20, searchTerm?: string): Promise<ApiResult<PagedResultDto<PessoaDto>> | ApiResult<PessoaDto[]>> => {
+  getAll: async (skip = 0, take = 20, searchTerm?: string): Promise<ApiResult<PagedResultDto<PessoaTotaisDto>> | ApiResult<PessoaDto[]>> => {
     const params: { skip: number; take: number; searchTerm?: string } = { skip, take };
     if (searchTerm) {
       params.searchTerm = searchTerm;
     }
-    const response = await api.get<ApiResult<PagedResultDto<PessoaDto>> | ApiResult<PessoaDto[]>>('/pessoas', { params });
+    const response = await api.get<ApiResult<PagedResultDto<PessoaTotaisDto>> | ApiResult<PessoaDto[]>>('/pessoas', { params });
     return response.data;
   },
 
@@ -52,6 +52,12 @@ export const pessoasApi = {
   // Deleta pessoa por ID
   delete: async (id: number): Promise<ApiResult<boolean>> => {
     const response = await api.delete<ApiResult<boolean>>(`/pessoas/${id}`);
+    return response.data;
+  },
+
+  // Busca totais gerais de todas as pessoas
+  getTotaisGerais: async (): Promise<ApiResult<TotaisGeraisDto>> => {
+    const response = await api.get<ApiResult<TotaisGeraisDto>>('/pessoas/totais-gerais');
     return response.data;
   },
 };

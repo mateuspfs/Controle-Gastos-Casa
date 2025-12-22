@@ -12,8 +12,8 @@ namespace ControleGastosCasa.Application.Services;
 
 public class TransacaoService(
     ITransacaoRepository transacoesRepository,
-    IGenericRepository<Pessoa> pessoasRepository,
-    IGenericRepository<Categoria> categoriasRepository,
+    IPessoaRepository pessoasRepository,
+    ICategoriaRepository categoriasRepository,
     IMapper mapper) : ITransacaoService
 {
     // Cria uma transacao aplicando regras de negócio.

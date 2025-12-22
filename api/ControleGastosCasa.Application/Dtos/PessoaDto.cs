@@ -13,8 +13,5 @@ public class PessoaDto
 
     [Required(ErrorMessage = "Data de nascimento é obrigatória.")]
     public DateTime DataNascimento { get; set; }
-
-    // Idade formatada como texto (ex: "5 anos", "6 meses", "2 anos e 3 meses")
-    public string? Idade { get; set; }
 }
 

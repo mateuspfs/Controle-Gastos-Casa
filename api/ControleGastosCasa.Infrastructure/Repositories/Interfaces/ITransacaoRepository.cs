@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using ControleGastosCasa.Domain.Entities;
+using ControleGastosCasa.Domain.Enums;
 
 namespace ControleGastosCasa.Infrastructure.Repositories.Interfaces;
 
@@ -12,5 +13,7 @@ public interface ITransacaoRepository : IGenericRepository<Transacao>
         Expression<Func<Transacao, object>>? orderBy = null, 
         OrderDirection orderDirection = OrderDirection.Descending, 
         CancellationToken cancellationToken = default);
+    
+    Task<decimal> SomarTransacoesPorTipoAsync(TipoTransacao tipo, int? pessoaId, CancellationToken cancellationToken = default);
 }
 

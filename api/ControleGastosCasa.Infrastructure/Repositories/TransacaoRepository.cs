@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using ControleGastosCasa.Domain.Entities;
+using ControleGastosCasa.Domain.Enums;
 using ControleGastosCasa.Infrastructure.Persistence;
 using ControleGastosCasa.Infrastructure.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -39,6 +40,19 @@ public class TransacaoRepository(AppDbContext context) : GenericRepository<Trans
             .Skip(safeSkip)
             .Take(safeTake)
             .ToListAsync(cancellationToken);
+    }
+
+    // Retorno da soma de todas transações de um tipo especifico, pondendo ser por pessoa ou não
+    public async Task<decimal> SomarTransacoesPorTipoAsync(TipoTransacao tipo, int? pessoaId, CancellationToken cancellationToken = default)
+    {
+        var query = Context.Set<Transacao>()
+            .AsNoTracking()
+            .Where(t => t.Tipo == tipo);
+        
+        // Se pessoaId for 0, soma todas as transações do tipo (para totais gerais)
+        if (pessoaId != null && pessoaId > 0) query = query.Where(t => t.PessoaId == pessoaId);
+
+        return await query.SumAsync(t => t.Valor, cancellationToken);
     }
 }
 

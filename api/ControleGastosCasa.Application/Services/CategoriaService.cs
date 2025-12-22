@@ -10,7 +10,7 @@ using ControleGastosCasa.Infrastructure.Repositories.Interfaces;
 
 namespace ControleGastosCasa.Application.Services;
 
-public class CategoriaService(IGenericRepository<Categoria> categoriasRepository, IMapper mapper) : ICategoriaService
+public class CategoriaService(ICategoriaRepository categoriasRepository, IMapper mapper) : ICategoriaService
 {
     // Cria uma categoria.
     public async Task<ApiResult<CategoriaDto>> CreateAsync(CategoriaDto model, CancellationToken cancellationToken = default)

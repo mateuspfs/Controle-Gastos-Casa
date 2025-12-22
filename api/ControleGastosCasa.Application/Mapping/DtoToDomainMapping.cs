@@ -6,6 +6,7 @@ namespace ControleGastosCasa.Application.Mapping
 {
     public class DtoToDomainMapping : Profile
     {
+        // Mapeamentos de DTOs para entidades de domínio
         public DtoToDomainMapping()
         {
             CreateMap<PessoaDto, Pessoa>().ForMember(dest => dest.Id, opt => opt.Ignore());

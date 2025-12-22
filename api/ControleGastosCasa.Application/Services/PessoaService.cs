@@ -5,11 +5,15 @@ using ControleGastosCasa.Application.Dtos;
 using ControleGastosCasa.Application.Helpers;
 using ControleGastosCasa.Application.Services.Interfaces;
 using ControleGastosCasa.Domain.Entities;
+using ControleGastosCasa.Domain.Enums;
 using ControleGastosCasa.Infrastructure.Repositories.Interfaces;
 
 namespace ControleGastosCasa.Application.Services;
 
-public class PessoaService(IGenericRepository<Pessoa> pessoasRepository, IMapper mapper) : IPessoaService
+public class PessoaService(
+    IPessoaRepository pessoasRepository,
+    ITransacaoRepository transacoesRepository,
+    IMapper mapper) : IPessoaService
 {
     // Cria uma nova pessoa.
     public async Task<ApiResult<PessoaDto>> CreateAsync(PessoaDto model, CancellationToken cancellationToken = default)
@@ -50,7 +54,7 @@ public class PessoaService(IGenericRepository<Pessoa> pessoasRepository, IMapper
     }
 
     // Retorna pessoas paginadas com filtro opcional por nome
-    public async Task<ApiResult<PagedResultDto<PessoaDto>>> GetPaginateAsync(int skip = 0, int take = 20, string? searchTerm = null, CancellationToken cancellationToken = default)
+    public async Task<ApiResult<PagedResultDto<PessoaTotaisDto>>> GetPaginateAsync(int skip = 0, int take = 20, string? searchTerm = null, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -72,8 +76,24 @@ public class PessoaService(IGenericRepository<Pessoa> pessoasRepository, IMapper
             var pessoas = await pessoasRepository.PaginateAsync(safeSkip, safeTake, where, orderBy, OrderDirection.Descending, cancellationToken);
             var totalItems = await pessoasRepository.CountAsync(where, cancellationToken);
 
-            // Mapeia os DTOs
-            var mapped = pessoas.Select(p => mapper.Map<Pessoa, PessoaDto>(p)).ToList();
+            List<PessoaTotaisDto> mapped = [];
+            foreach (var pessoa in pessoas)
+            {                
+                // Calcula totais usando os métodos do repository
+                var receitas = await transacoesRepository.SomarTransacoesPorTipoAsync(TipoTransacao.Receita, pessoa.Id, cancellationToken);
+                var despesas = await transacoesRepository.SomarTransacoesPorTipoAsync(TipoTransacao.Despesa, pessoa.Id, cancellationToken);
+                
+                // Cria o DTO completo com os totais calculados
+                mapped.Add(new PessoaTotaisDto(
+                    pessoa.Id,
+                    pessoa.Nome,
+                    pessoa.DataNascimento,
+                    DateHelper.CalcularIdade(pessoa.DataNascimento),
+                    receitas,
+                    despesas,
+                    receitas - despesas
+                ));
+            }
 
             // Calcula informações de paginação
             var currentPage = (safeSkip / safeTake) + 1;
@@ -81,7 +101,7 @@ public class PessoaService(IGenericRepository<Pessoa> pessoasRepository, IMapper
             var hasPreviousPage = currentPage > 1;
             var hasNextPage = currentPage < totalPages;
 
-            var result = new PagedResultDto<PessoaDto>
+            var result = new PagedResultDto<PessoaTotaisDto>
             {
                 Items = mapped,
                 CurrentPage = currentPage,
@@ -92,11 +112,11 @@ public class PessoaService(IGenericRepository<Pessoa> pessoasRepository, IMapper
                 HasNextPage = hasNextPage,
             };
 
-            return ApiResult<PagedResultDto<PessoaDto>>.Ok(result);
+            return ApiResult<PagedResultDto<PessoaTotaisDto>>.Ok(result);
         }
         catch(Exception e)
         {
-            return ApiResult<PagedResultDto<PessoaDto>>.Fail("Ocorreu um erro ao listar pessoas");
+            return ApiResult<PagedResultDto<PessoaTotaisDto>>.Fail("Ocorreu um erro ao listar pessoas");
         }
     }
 
@@ -160,6 +180,30 @@ public class PessoaService(IGenericRepository<Pessoa> pessoasRepository, IMapper
         catch
         {
             return ApiResult<PessoaDto>.Fail("Ocorreu um erro ao buscar a pessoa");
+        }
+    }
+
+    // Retorna os totais gerais de todas as pessoas
+    public async Task<ApiResult<TotaisGeraisDto>> GetTotaisGeraisAsync(CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var totalReceitas = await transacoesRepository.SomarTransacoesPorTipoAsync(TipoTransacao.Receita, null, cancellationToken);
+            var totalDespesas = await transacoesRepository.SomarTransacoesPorTipoAsync(TipoTransacao.Despesa, null, cancellationToken);
+            var saldoLiquido = totalReceitas - totalDespesas;
+
+            var totais = new TotaisGeraisDto
+            {
+                TotalReceitas = totalReceitas,
+                TotalDespesas = totalDespesas,
+                SaldoLiquido = saldoLiquido
+            };
+
+            return ApiResult<TotaisGeraisDto>.Ok(totais);
+        }
+        catch
+        {
+            return ApiResult<TotaisGeraisDto>.Fail("Ocorreu um erro ao obter totais gerais");
         }
     }
 }
