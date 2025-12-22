@@ -84,15 +84,5 @@ public class PessoaController(IPessoaService pessoasService) : ControllerBase
 
         return Ok(ApiResult<bool>.Ok(true));
     }
-
-    [HttpGet("totais-gerais")]
-    public async Task<ActionResult<ApiResult<TotaisGeraisDto>>> GetTotaisGeraisAsync(CancellationToken cancellationToken)
-    {
-        var totais = await pessoasService.GetTotaisGeraisAsync(cancellationToken);
-        if (!totais.Success || totais.Data is null)
-            return BadRequest(totais);
-
-        return Ok(totais);
-    }
 }
 

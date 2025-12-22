@@ -1,9 +1,9 @@
 import axios from 'axios';
-import type { ApiResult, PessoaDto, PessoaTotaisDto, PagedResultDto, CategoriaDto, TransacaoDto, TotaisGeraisDto } from '../types/api';
+import type { ApiResult, PessoaDto, PessoaTotaisDto, PagedResultDto, CategoriaDto, CategoriaTotaisDto, TransacaoDto, TotaisGeraisDto } from '../types/api';
 
 // Configuração base do cliente HTTP para comunicação com a API
 const api = axios.create({
-  baseURL: import.meta.env.DEV ? 'http://localhost:5027' : '', // URL do backend em desenvolvimento
+  baseURL: import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:5027' : ''),
   headers: {
     'Content-Type': 'application/json',
   },
@@ -54,20 +54,14 @@ export const pessoasApi = {
     const response = await api.delete<ApiResult<boolean>>(`/pessoas/${id}`);
     return response.data;
   },
-
-  // Busca totais gerais de todas as pessoas
-  getTotaisGerais: async (): Promise<ApiResult<TotaisGeraisDto>> => {
-    const response = await api.get<ApiResult<TotaisGeraisDto>>('/pessoas/totais-gerais');
-    return response.data;
-  },
 };
 
 // Serviço de API para categorias
 export const categoriasApi = {
   // Lista todas as categorias com paginação, busca e filtro por finalidade
   // Quando take = 0, retorna ApiResult<IReadOnlyList<CategoriaDto>>
-  // Caso contrário, retorna ApiResult<PagedResultDto<CategoriaDto>>
-  getAll: async (skip = 0, take = 20, searchTerm?: string, finalidade?: number): Promise<ApiResult<PagedResultDto<CategoriaDto>> | ApiResult<CategoriaDto[]>> => {
+  // Caso contrário, retorna ApiResult<PagedResultDto<CategoriaTotaisDto>>
+  getAll: async (skip = 0, take = 20, searchTerm?: string, finalidade?: number): Promise<ApiResult<PagedResultDto<CategoriaTotaisDto>> | ApiResult<CategoriaDto[]>> => {
     const params: { skip: number; take: number; searchTerm?: string; finalidade?: number } = { skip, take };
     if (searchTerm) {
       params.searchTerm = searchTerm;
@@ -75,7 +69,7 @@ export const categoriasApi = {
     if (finalidade !== undefined && finalidade !== null) {
       params.finalidade = finalidade;
     }
-    const response = await api.get<ApiResult<PagedResultDto<CategoriaDto>> | ApiResult<CategoriaDto[]>>('/categorias', { params });
+    const response = await api.get<ApiResult<PagedResultDto<CategoriaTotaisDto>> | ApiResult<CategoriaDto[]>>('/categorias', { params });
     return response.data;
   },
 
@@ -175,6 +169,30 @@ export const transacoesApi = {
   // Deleta transação por ID
   delete: async (id: number): Promise<ApiResult<boolean>> => {
     const response = await api.delete<ApiResult<boolean>>(`/transacoes/${id}`);
+    return response.data;
+  },
+
+  // Busca totais gerais de transações com filtros opcionais
+  getTotaisGerais: async (
+    dataInicio?: string,
+    dataFim?: string,
+    pessoaId?: number,
+    categoriaId?: number,
+    tipo?: number
+  ): Promise<ApiResult<TotaisGeraisDto>> => {
+    const params: {
+      dataInicio?: string;
+      dataFim?: string;
+      pessoaId?: number;
+      categoriaId?: number;
+      tipo?: number;
+    } = {};
+    if (dataInicio) params.dataInicio = dataInicio;
+    if (dataFim) params.dataFim = dataFim;
+    if (pessoaId !== undefined && pessoaId !== null && pessoaId > 0) params.pessoaId = pessoaId;
+    if (categoriaId !== undefined && categoriaId !== null && categoriaId > 0) params.categoriaId = categoriaId;
+    if (tipo !== undefined && tipo !== null) params.tipo = tipo;
+    const response = await api.get<ApiResult<TotaisGeraisDto>>('/transacoes/totais-gerais', { params });
     return response.data;
   },
 };

@@ -14,7 +14,10 @@ export default function CategoriasUpdate() {
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    descricao: string;
+    finalidade: FinalidadeCategoria;
+  }>({
     descricao: '',
     finalidade: FinalidadeCategoria.Despesa,
   });

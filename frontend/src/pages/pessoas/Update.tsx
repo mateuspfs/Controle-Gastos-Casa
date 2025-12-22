@@ -4,7 +4,6 @@ import { pessoasApi } from '../../services/api';
 import { Container, Box, PageHeader, Button, Loading, ErrorMessage } from '../../components';
 import PessoaForm from './PessoaForm';
 import { swal } from '../../utils/swal';
-import type { PessoaDto } from '../../types/api';
 import { getFieldError } from '../../helpers/validation';
 
 // Página de edição de pessoa

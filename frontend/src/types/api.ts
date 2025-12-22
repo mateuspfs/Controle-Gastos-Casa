@@ -57,6 +57,15 @@ export interface CategoriaDto {
   finalidade: FinalidadeCategoria;
 }
 
+export interface CategoriaTotaisDto {
+  id: number;
+  descricao: string;
+  finalidade: FinalidadeCategoria;
+  totalReceitas: number;
+  totalDespesas: number;
+  saldo: number;
+}
+
 export const TipoTransacao = {
   Despesa: 1,
   Receita: 2,

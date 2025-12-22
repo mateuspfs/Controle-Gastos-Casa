@@ -24,10 +24,12 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
+        var frontendUrl = builder.Configuration["FrontendUrl"] ?? "http://localhost:5173";
         policy
-            .AllowAnyOrigin()
+            .WithOrigins(frontendUrl, "http://localhost:5173", "http://frontend:80")
             .AllowAnyMethod()
-            .AllowAnyHeader();
+            .AllowAnyHeader()
+            .AllowCredentials();
     });
 });
 

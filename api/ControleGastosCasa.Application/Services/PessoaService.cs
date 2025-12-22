@@ -80,8 +80,8 @@ public class PessoaService(
             foreach (var pessoa in pessoas)
             {                
                 // Calcula totais usando os métodos do repository
-                var receitas = await transacoesRepository.SomarTransacoesPorTipoAsync(TipoTransacao.Receita, pessoa.Id, cancellationToken);
-                var despesas = await transacoesRepository.SomarTransacoesPorTipoAsync(TipoTransacao.Despesa, pessoa.Id, cancellationToken);
+                var receitas = await transacoesRepository.SomarTransacoesPorTipoAsync(TipoTransacao.Receita, pessoa.Id, null, null, null, cancellationToken);
+                var despesas = await transacoesRepository.SomarTransacoesPorTipoAsync(TipoTransacao.Despesa, pessoa.Id, null, null, null, cancellationToken);
                 
                 // Cria o DTO completo com os totais calculados
                 mapped.Add(new PessoaTotaisDto(
@@ -180,30 +180,6 @@ public class PessoaService(
         catch
         {
             return ApiResult<PessoaDto>.Fail("Ocorreu um erro ao buscar a pessoa");
-        }
-    }
-
-    // Retorna os totais gerais de todas as pessoas
-    public async Task<ApiResult<TotaisGeraisDto>> GetTotaisGeraisAsync(CancellationToken cancellationToken = default)
-    {
-        try
-        {
-            var totalReceitas = await transacoesRepository.SomarTransacoesPorTipoAsync(TipoTransacao.Receita, null, cancellationToken);
-            var totalDespesas = await transacoesRepository.SomarTransacoesPorTipoAsync(TipoTransacao.Despesa, null, cancellationToken);
-            var saldoLiquido = totalReceitas - totalDespesas;
-
-            var totais = new TotaisGeraisDto
-            {
-                TotalReceitas = totalReceitas,
-                TotalDespesas = totalDespesas,
-                SaldoLiquido = saldoLiquido
-            };
-
-            return ApiResult<TotaisGeraisDto>.Ok(totais);
-        }
-        catch
-        {
-            return ApiResult<TotaisGeraisDto>.Fail("Ocorreu um erro ao obter totais gerais");
         }
     }
 }

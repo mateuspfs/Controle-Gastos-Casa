@@ -203,6 +203,64 @@ public class TransacaoService(
         }
     }
 
+    // Retorna os totais gerais de transações com filtros opcionais
+    public async Task<ApiResult<TotaisGeraisDto>> GetTotaisGeraisAsync(
+        DateTime? dataInicio = null,
+        DateTime? dataFim = null,
+        int? pessoaId = null,
+        int? categoriaId = null,
+        TipoTransacao? tipo = null,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            // Calcula totais usando o repository com filtros
+            // Se tipo for fornecido, calcula apenas aquele tipo, senão calcula ambos
+            decimal totalReceitas;
+            decimal totalDespesas;
+
+            if (tipo.HasValue)
+            {
+                // Se tipo for fornecido, calcula apenas aquele tipo
+                if (tipo.Value == TipoTransacao.Receita)
+                {
+                    totalReceitas = await transacoesRepository.SomarTransacoesPorTipoAsync(
+                        TipoTransacao.Receita, pessoaId, categoriaId, dataInicio, dataFim, cancellationToken);
+                    totalDespesas = 0;
+                }
+                else
+                {
+                    totalReceitas = 0;
+                    totalDespesas = await transacoesRepository.SomarTransacoesPorTipoAsync(
+                        TipoTransacao.Despesa, pessoaId, categoriaId, dataInicio, dataFim, cancellationToken);
+                }
+            }
+            else
+            {
+                // Calcula ambos os tipos
+                totalReceitas = await transacoesRepository.SomarTransacoesPorTipoAsync(
+                    TipoTransacao.Receita, pessoaId, categoriaId, dataInicio, dataFim, cancellationToken);
+                totalDespesas = await transacoesRepository.SomarTransacoesPorTipoAsync(
+                    TipoTransacao.Despesa, pessoaId, categoriaId, dataInicio, dataFim, cancellationToken);
+            }
+
+            var saldoLiquido = totalReceitas - totalDespesas;
+
+            var totais = new TotaisGeraisDto
+            {
+                TotalReceitas = totalReceitas,
+                TotalDespesas = totalDespesas,
+                SaldoLiquido = saldoLiquido
+            };
+
+            return ApiResult<TotaisGeraisDto>.Ok(totais);
+        }
+        catch
+        {
+            return ApiResult<TotaisGeraisDto>.Fail("Ocorreu um erro ao obter totais gerais");
+        }
+    }
+
     private static string? ValidarFinalidade(TipoTransacao tipo, FinalidadeCategoria finalidadeCategoria)
     {
         if (tipo == TipoTransacao.Despesa && finalidadeCategoria == FinalidadeCategoria.Receita)

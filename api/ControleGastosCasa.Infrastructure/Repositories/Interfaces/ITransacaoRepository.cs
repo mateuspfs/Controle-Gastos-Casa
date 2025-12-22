@@ -14,6 +14,12 @@ public interface ITransacaoRepository : IGenericRepository<Transacao>
         OrderDirection orderDirection = OrderDirection.Descending, 
         CancellationToken cancellationToken = default);
     
-    Task<decimal> SomarTransacoesPorTipoAsync(TipoTransacao tipo, int? pessoaId, CancellationToken cancellationToken = default);
+    Task<decimal> SomarTransacoesPorTipoAsync(
+        TipoTransacao tipo, 
+        int? pessoaId = null, 
+        int? categoriaId = null,
+        DateTime? dataInicio = null,
+        DateTime? dataFim = null,
+        CancellationToken cancellationToken = default);
 }
 

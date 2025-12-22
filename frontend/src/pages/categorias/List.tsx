@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { categoriasApi } from '../../services/api';
-import type { CategoriaDto, PagedResultDto } from '../../types/api';
+import type { CategoriaTotaisDto, PagedResultDto } from '../../types/api';
+import { formatarMoeda } from '../../helpers/masks';
 import { FinalidadeCategoria } from '../../types/api';
 import { Select } from '../../components/Form';
 import {
@@ -20,6 +21,8 @@ import {
   Loading,
   ErrorMessage,
   Search,
+  ColoredText,
+  TotaisGerais,
 } from '../../components';
 
 // Função auxiliar para formatar finalidade
@@ -45,7 +48,7 @@ const getFinalidadeColorClass = (finalidade: number): string => {
 // Página de listagem de categorias
 export default function CategoriasList() {
   const navigate = useNavigate();
-  const [categorias, setCategorias] = useState<CategoriaDto[]>([]);
+  const [categorias, setCategorias] = useState<CategoriaTotaisDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [skip, setSkip] = useState(0);
@@ -68,7 +71,7 @@ export default function CategoriasList() {
       const result = await categoriasApi.getAll(currentSkip, take, currentSearchTerm || undefined, currentFinalidade ?? undefined);
       
       if (result.success && result.data) {
-        const pagedData = result.data as PagedResultDto<CategoriaDto>;
+        const pagedData = result.data as PagedResultDto<CategoriaTotaisDto>;
         setCategorias(pagedData.items);
         setPagination({
           currentPage: pagedData.currentPage,
@@ -176,17 +179,48 @@ export default function CategoriasList() {
               <Tr isHeader>
                 <Th>Descrição</Th>
                 <Th align="center">Finalidade</Th>
+                <Th align="right">Receitas</Th>
+                <Th align="right">Despesas</Th>
+                <Th align="right">Saldo</Th>
                 <Th align="right">Ações</Th>
               </Tr>
             </Thead>
             <Tbody>
               {categorias.map((categoria, index) => (
                 <Tr key={categoria.id} index={index}>
-                  <Td>{categoria.descricao}</Td>
+                  <Td className="font-medium">{categoria.descricao}</Td>
                   <Td align="center">
                     <span className={getFinalidadeColorClass(categoria.finalidade)}>
                       {formatarFinalidade(categoria.finalidade)}
                     </span>
+                  </Td>
+                  <Td align="right">
+                    <ColoredText 
+                      color={categoria.totalReceitas > 0 ? 'green' : 'default'} 
+                      className="inline-flex items-center gap-1 font-semibold"
+                    >
+                      {categoria.totalReceitas > 0 && <span>+</span>}
+                      <span>{formatarMoeda(categoria.totalReceitas)}</span>
+                    </ColoredText>
+                  </Td>
+                  <Td align="right">
+                    <ColoredText 
+                      color={categoria.totalDespesas > 0 ? 'red' : 'default'} 
+                      className="inline-flex items-center gap-1 font-semibold"
+                    >
+                      {categoria.totalDespesas > 0 && <span>-</span>}
+                      <span>{formatarMoeda(categoria.totalDespesas)}</span>
+                    </ColoredText>
+                  </Td>
+                  <Td align="right">
+                    <ColoredText 
+                      color={categoria.saldo > 0 ? 'green' : categoria.saldo < 0 ? 'red' : 'default'} 
+                      className="inline-flex items-center gap-1 font-semibold"
+                    >
+                      {categoria.saldo > 0 && <span>+</span>}
+                      {categoria.saldo < 0 && <span>-</span>}
+                      <span>{formatarMoeda(Math.abs(categoria.saldo))}</span>
+                    </ColoredText>
                   </Td>
                   <Td align="right">
                     <ActionButtons
@@ -212,6 +246,9 @@ export default function CategoriasList() {
             />
           </div>
         )}
+
+        {/* Totais Gerais */}
+        <TotaisGerais />
 
         </>
       )}

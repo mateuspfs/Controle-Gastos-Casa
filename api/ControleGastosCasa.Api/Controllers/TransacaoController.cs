@@ -79,5 +79,21 @@ public class TransacaoController(ITransacaoService transacoesService) : Controll
 
         return Ok(ApiResult<bool>.Ok(true));
     }
+
+    [HttpGet("totais-gerais")]
+    public async Task<ActionResult<ApiResult<TotaisGeraisDto>>> GetTotaisGeraisAsync(
+        [FromQuery] DateTime? dataInicio = null,
+        [FromQuery] DateTime? dataFim = null,
+        [FromQuery] int? pessoaId = null,
+        [FromQuery] int? categoriaId = null,
+        [FromQuery] TipoTransacao? tipo = null,
+        CancellationToken cancellationToken = default)
+    {
+        var totais = await transacoesService.GetTotaisGeraisAsync(dataInicio, dataFim, pessoaId, categoriaId, tipo, cancellationToken);
+        if (!totais.Success || totais.Data is null)
+            return BadRequest(totais);
+
+        return Ok(totais);
+    }
 }
 

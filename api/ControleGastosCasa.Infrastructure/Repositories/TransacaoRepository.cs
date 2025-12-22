@@ -42,15 +42,34 @@ public class TransacaoRepository(AppDbContext context) : GenericRepository<Trans
             .ToListAsync(cancellationToken);
     }
 
-    // Retorno da soma de todas transações de um tipo especifico, pondendo ser por pessoa ou não
-    public async Task<decimal> SomarTransacoesPorTipoAsync(TipoTransacao tipo, int? pessoaId, CancellationToken cancellationToken = default)
+    // Retorno da soma de todas transações de um tipo especifico com filtros 
+    public async Task<decimal> SomarTransacoesPorTipoAsync(
+        TipoTransacao tipo, 
+        int? pessoaId = null, 
+        int? categoriaId = null,
+        DateTime? dataInicio = null,
+        DateTime? dataFim = null,
+        CancellationToken cancellationToken = default)
     {
         var query = Context.Set<Transacao>()
             .AsNoTracking()
             .Where(t => t.Tipo == tipo);
         
-        // Se pessoaId for 0, soma todas as transações do tipo (para totais gerais)
-        if (pessoaId != null && pessoaId > 0) query = query.Where(t => t.PessoaId == pessoaId);
+        // Se pessoaId for fornecido, filtra por pessoa
+        if (pessoaId != null && pessoaId > 0) 
+            query = query.Where(t => t.PessoaId == pessoaId);
+        
+        // Se categoriaId for fornecido, filtra por categoria
+        if (categoriaId != null && categoriaId > 0) 
+            query = query.Where(t => t.CategoriaId == categoriaId);
+        
+        // Se dataInicio for fornecida, filtra por data de início
+        if (dataInicio.HasValue) 
+            query = query.Where(t => t.DataTransacao.Date >= dataInicio.Value.Date);
+        
+        // Se dataFim for fornecida, filtra por data de fim
+        if (dataFim.HasValue) 
+            query = query.Where(t => t.DataTransacao.Date <= dataFim.Value.Date);
 
         return await query.SumAsync(t => t.Valor, cancellationToken);
     }

@@ -11,7 +11,10 @@ import { getFieldError } from '../../helpers/validation';
 export default function CategoriasCreate() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    descricao: string;
+    finalidade: FinalidadeCategoria;
+  }>({
     descricao: '',
     finalidade: FinalidadeCategoria.Despesa,
   });

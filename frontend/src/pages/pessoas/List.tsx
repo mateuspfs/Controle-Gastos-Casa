@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { pessoasApi } from '../../services/api';
-import type { PagedResultDto, PessoaTotaisDto, TotaisGeraisDto } from '../../types/api';
+import type { PagedResultDto, PessoaTotaisDto } from '../../types/api';
 import { formatarDataBr, formatarMoeda } from '../../helpers/masks';
 import {
   Container,
@@ -20,6 +20,7 @@ import {
   ErrorMessage,
   Search,
   ColoredText,
+  TotaisGerais,
 } from '../../components';
 import { swal } from '../../utils/swal';
 
@@ -32,7 +33,6 @@ export default function PessoasList() {
   const [skip, setSkip] = useState(0);
   const [take] = useState(9);
   const [searchTerm, setSearchTerm] = useState('');
-  const [totaisGerais, setTotaisGerais] = useState<TotaisGeraisDto | null>(null);
   const [pagination, setPagination] = useState({
     currentPage: 1,
     totalItems: 0,
@@ -74,28 +74,11 @@ export default function PessoasList() {
     setSkip(0);
   }, [searchTerm]);
 
-  // Carrega totais gerais
-  const loadTotaisGerais = async () => {
-    try {
-      const result = await pessoasApi.getTotaisGerais();
-      if (result.success && result.data) {
-        setTotaisGerais(result.data);
-      }
-    } catch (err) {
-      console.error('Erro ao carregar totais gerais:', err);
-    }
-  };
-
   // Recarrega quando skip ou searchTerm mudam
   useEffect(() => {
     loadPessoas(skip, searchTerm);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [skip, searchTerm]);
-
-  // Carrega totais gerais ao montar o componente
-  useEffect(() => {
-    loadTotaisGerais();
-  }, []);
 
   // Handler para deletar pessoa
   const handleDelete = async (id: number) => {
@@ -237,67 +220,7 @@ export default function PessoasList() {
             />
           )}
 
-          {/* Totais Gerais */}
-          {totaisGerais && (
-            <Box className="mt-6">
-              <div className="p-6">
-                <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-6 text-center">
-                  Totais Gerais
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4 border border-green-200 dark:border-green-800">
-                    <p className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 text-center">
-                      Total de Receitas
-                    </p>
-                    <div className="text-center">
-                      <ColoredText 
-                        color={totaisGerais.totalReceitas > 0 ? 'green' : 'default'} 
-                        className="text-2xl font-bold inline-flex items-center gap-1"
-                      >
-                        {totaisGerais.totalReceitas > 0 && <span>+</span>}
-                        <span>{formatarMoeda(totaisGerais.totalReceitas)}</span>
-                      </ColoredText>
-                    </div>
-                  </div>
-                  <div className="bg-red-50 dark:bg-red-900/20 rounded-lg p-4 border border-red-200 dark:border-red-800">
-                    <p className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 text-center">
-                      Total de Despesas
-                    </p>
-                    <div className="text-center">
-                      <ColoredText 
-                        color={totaisGerais.totalDespesas > 0 ? 'red' : 'default'} 
-                        className="text-2xl font-bold inline-flex items-center gap-1"
-                      >
-                        {totaisGerais.totalDespesas > 0 && <span>-</span>}
-                        <span>{formatarMoeda(totaisGerais.totalDespesas)}</span>
-                      </ColoredText>
-                    </div>
-                  </div>
-                  <div className={`rounded-lg p-4 border ${
-                    totaisGerais.saldoLiquido > 0 
-                      ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800' 
-                      : totaisGerais.saldoLiquido < 0 
-                      ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
-                      : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700'
-                  }`}>
-                    <p className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 text-center">
-                      Saldo Líquido
-                    </p>
-                    <div className="text-center">
-                      <ColoredText 
-                        color={totaisGerais.saldoLiquido > 0 ? 'green' : totaisGerais.saldoLiquido < 0 ? 'red' : 'default'} 
-                        className="text-2xl font-bold inline-flex items-center gap-1"
-                      >
-                        {totaisGerais.saldoLiquido > 0 && <span>+</span>}
-                        {totaisGerais.saldoLiquido < 0 && <span>-</span>}
-                        <span>{formatarMoeda(Math.abs(totaisGerais.saldoLiquido))}</span>
-                      </ColoredText>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </Box>
-          )}
+          <TotaisGerais />
         </>
       )}
     </Container>

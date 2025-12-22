@@ -10,7 +10,10 @@ using ControleGastosCasa.Infrastructure.Repositories.Interfaces;
 
 namespace ControleGastosCasa.Application.Services;
 
-public class CategoriaService(ICategoriaRepository categoriasRepository, IMapper mapper) : ICategoriaService
+public class CategoriaService(
+    ICategoriaRepository categoriasRepository,
+    ITransacaoRepository transacoesRepository,
+    IMapper mapper) : ICategoriaService
 {
     // Cria uma categoria.
     public async Task<ApiResult<CategoriaDto>> CreateAsync(CategoriaDto model, CancellationToken cancellationToken = default)
@@ -49,7 +52,7 @@ public class CategoriaService(ICategoriaRepository categoriasRepository, IMapper
     }
 
     // Retorna categorias paginadas com filtro opcional por descrição e finalidade
-    public async Task<ApiResult<PagedResultDto<CategoriaDto>>> GetPaginateAsync(int skip = 0, int take = 20, string? searchTerm = null, int? finalidade = null, CancellationToken cancellationToken = default)
+    public async Task<ApiResult<PagedResultDto<CategoriaTotaisDto>>> GetPaginateAsync(int skip = 0, int take = 20, string? searchTerm = null, int? finalidade = null, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -85,8 +88,23 @@ public class CategoriaService(ICategoriaRepository categoriasRepository, IMapper
             var categorias = await categoriasRepository.PaginateAsync(safeSkip, safeTake, where, orderBy, OrderDirection.Descending, cancellationToken);
             var totalItems = await categoriasRepository.CountAsync(where, cancellationToken);
 
-            // Mapeia os DTOs
-            var mapped = categorias.Select(c => mapper.Map<Categoria, CategoriaDto>(c)).ToList();
+            List<CategoriaTotaisDto> mapped = [];
+            foreach (var categoria in categorias)
+            {                
+                // Calcula totais usando os métodos do repository
+                var receitas = await transacoesRepository.SomarTransacoesPorTipoAsync(TipoTransacao.Receita, null, categoria.Id, null, null, cancellationToken);
+                var despesas = await transacoesRepository.SomarTransacoesPorTipoAsync(TipoTransacao.Despesa, null, categoria.Id, null, null, cancellationToken);
+                
+                // Cria o DTO completo com os totais calculados
+                mapped.Add(new CategoriaTotaisDto(
+                    categoria.Id,
+                    categoria.Descricao,
+                    categoria.Finalidade,
+                    receitas,
+                    despesas,
+                    receitas - despesas
+                ));
+            }
 
             // Calcula informações de paginação
             var currentPage = (safeSkip / safeTake) + 1;
@@ -94,7 +112,7 @@ public class CategoriaService(ICategoriaRepository categoriasRepository, IMapper
             var hasPreviousPage = currentPage > 1;
             var hasNextPage = currentPage < totalPages;
 
-            var result = new PagedResultDto<CategoriaDto>
+            var result = new PagedResultDto<CategoriaTotaisDto>
             {
                 Items = mapped,
                 CurrentPage = currentPage,
@@ -105,11 +123,11 @@ public class CategoriaService(ICategoriaRepository categoriasRepository, IMapper
                 HasNextPage = hasNextPage,
             };
 
-            return ApiResult<PagedResultDto<CategoriaDto>>.Ok(result);
+            return ApiResult<PagedResultDto<CategoriaTotaisDto>>.Ok(result);
         }
         catch
         {
-            return ApiResult<PagedResultDto<CategoriaDto>>.Fail("Ocorreu um erro ao listar categorias");
+            return ApiResult<PagedResultDto<CategoriaTotaisDto>>.Fail("Ocorreu um erro ao listar categorias");
         }
     }
 

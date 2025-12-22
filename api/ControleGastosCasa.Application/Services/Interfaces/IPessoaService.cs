@@ -11,6 +11,5 @@ public interface IPessoaService
     Task<ApiResult<IReadOnlyList<PessoaDto>>> GetAllAsync(string? searchTerm = null, CancellationToken cancellationToken = default);
     Task<ApiResult<PessoaDto>> GetByIdAsync(int id, CancellationToken cancellationToken = default);
     Task<ApiResult<bool>> DeleteAsync(int id, CancellationToken cancellationToken = default);
-    Task<ApiResult<TotaisGeraisDto>> GetTotaisGeraisAsync(CancellationToken cancellationToken = default);
 }
 

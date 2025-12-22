@@ -22,6 +22,7 @@ import {
   Button,
   Input,
   Select,
+  TotaisGerais,
 } from '../../components';
 import { swal } from '../../utils/swal';
 
@@ -345,6 +346,15 @@ export default function TransacoesList() {
               />
             </div>
           )}
+
+          {/* Totais Gerais */}
+          <TotaisGerais 
+            dataInicio={dataInicio || undefined}
+            dataFim={dataFim || undefined}
+            pessoaId={pessoaId > 0 ? pessoaId : undefined}
+            categoriaId={categoriaId > 0 ? categoriaId : undefined}
+            tipo={tipo}
+          />
         </>
       )}
     </Container>

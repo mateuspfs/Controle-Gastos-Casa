@@ -32,5 +32,13 @@ public interface ITransacaoService
     Task<ApiResult<bool>> DeleteAsync(
         int id,
         CancellationToken cancellationToken = default);
+
+    Task<ApiResult<TotaisGeraisDto>> GetTotaisGeraisAsync(
+        DateTime? dataInicio = null,
+        DateTime? dataFim = null,
+        int? pessoaId = null,
+        int? categoriaId = null,
+        TipoTransacao? tipo = null,
+        CancellationToken cancellationToken = default);
 }
 
