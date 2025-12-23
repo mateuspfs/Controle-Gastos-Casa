@@ -15,8 +15,6 @@
     <PackageReference Include="Moq" Version="4.20.72" />
     <PackageReference Include="FluentAssertions" Version="6.12.1" />
     <PackageReference Include="AutoMapper" Version="13.0.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="9.0.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -27,7 +25,6 @@
     <ProjectReference Include="..\ControleGastosCasa.Application\ControleGastosCasa.Application.csproj" />
     <ProjectReference Include="..\ControleGastosCasa.Domain\ControleGastosCasa.Domain.csproj" />
     <ProjectReference Include="..\ControleGastosCasa.Infrastructure\ControleGastosCasa.Infrastructure.csproj" />
-    <ProjectReference Include="..\ControleGastosCasa.Api\ControleGastosCasa.Api.csproj" />
   </ItemGroup>
 
 </Project>

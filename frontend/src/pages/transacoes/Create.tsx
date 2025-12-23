@@ -7,7 +7,6 @@ import { swal } from '../../utils/swal';
 import { TipoTransacao } from '../../types/api';
 import type { PessoaDto, CategoriaDto } from '../../types/api';
 import { getFieldError } from '../../helpers/validation';
-import { desformatarMoeda } from '../../helpers/masks';
 
 // Página de cadastro de transação
 export default function TransacoesCreate() {
@@ -118,8 +117,8 @@ export default function TransacoesCreate() {
 
     try {
       // Validação antes de enviar
-      const valorDesformatado = desformatarMoeda(formData.valor);
-      const valorNumero = parseFloat(valorDesformatado);
+      // CurrencyInput já envia o valor numérico correto (ex: "0.02", "2.99")
+      const valorNumero = parseFloat(formData.valor);
       if (isNaN(valorNumero) || valorNumero <= 0) {
         setErrors({ valor: 'O valor deve ser maior que zero.' });
         setLoading(false);

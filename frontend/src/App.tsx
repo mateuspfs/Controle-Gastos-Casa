@@ -40,12 +40,12 @@ function App() {
       <Sidebar />
 
       <div className="flex flex-1 flex-col md:ml-72">
-          <header className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200/80 bg-white/80 backdrop-blur-md shadow-sm px-6 py-4 dark:border-slate-800 dark:bg-slate-900 dark:backdrop-blur-none">
+          <header className="sticky top-0 z-10 flex items-center justify-between border-b border-[#0000bf]/20 bg-[#0000bf] backdrop-blur-md shadow-sm px-6 py-4 dark:border-slate-800 dark:bg-slate-900 dark:backdrop-blur-none">
             <div>
-              <p className="text-sm text-slate-600 dark:text-slate-400">
+              <p className="text-sm text-blue-100 dark:text-slate-400">
                 Controle de Gastos
               </p>
-              <h1 className="text-2xl font-semibold text-slate-800 dark:text-slate-100">{title}</h1>
+              <h1 className="text-2xl font-semibold text-white dark:text-slate-100">{title}</h1>
             </div>
             <ThemeToggle />
           </header>
