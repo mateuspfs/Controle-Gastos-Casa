@@ -6,7 +6,6 @@ import {
   useLocation,
 } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
-import ThemeToggle from './components/ThemeToggle';
 import PessoasList from './pages/pessoas/List';
 import PessoasCreate from './pages/pessoas/Create';
 import PessoasUpdate from './pages/pessoas/Update';
@@ -47,7 +46,6 @@ function App() {
               </p>
               <h1 className="text-2xl font-semibold text-white dark:text-slate-100">{title}</h1>
             </div>
-            <ThemeToggle />
           </header>
 
           <main className="flex-1 p-6">

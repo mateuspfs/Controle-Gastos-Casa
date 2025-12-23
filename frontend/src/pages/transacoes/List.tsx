@@ -198,8 +198,8 @@ export default function TransacoesList() {
   return (
     <Container>
       <PageHeader
-        title="Transações"
-        subtitle="Gerencie suas transações financeiras"
+        title=""
+        subtitle="Gerencie as transações financeiras"
         onAction={() => navigate('/transacoes/novo')}
         actionLabel="Nova Transação"
       />
@@ -260,7 +260,7 @@ export default function TransacoesList() {
                 &nbsp;
               </label>
               <Button
-                variant="outline"
+                variant="customgreen"
                 onClick={handleLimparFiltros}
                 className="w-full h-[42px]"
               >

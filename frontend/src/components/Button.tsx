@@ -1,6 +1,6 @@
 import { type ButtonHTMLAttributes, type ReactNode } from 'react';
 
-type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'outline';
+type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'outline' | 'blue' | 'customgreen';
 type ButtonSize = 'sm' | 'md' | 'lg';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -25,6 +25,8 @@ export default function Button({
     secondary: 'bg-slate-200 text-slate-700 hover:bg-slate-300 focus:ring-slate-400 shadow-sm dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700',
     danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 shadow-sm dark:bg-red-500 dark:hover:bg-red-600',
     outline: 'border border-slate-300/80 bg-white/90 text-slate-700 hover:bg-slate-100 hover:border-slate-400 focus:ring-slate-400 shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700',
+    blue: 'bg-[#59b8eb] text-black hover:bg-[#86d6fb] focus:ring-[#59b8eb] shadow-sm', // ajustado, antigo pink
+    customgreen: 'bg-[#5fad56] text-white hover:bg-[#77ce76] focus:ring-[#5fad56] shadow-sm', // ajustada para nova cor verde
   };
 
   const sizeClasses = {

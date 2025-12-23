@@ -13,7 +13,7 @@ export function Table({ children, className = '' }: { children: ReactNode; class
 
 // Cabeçalho da tabela com cor diferenciada
 export function Thead({ children }: { children: ReactNode }) {
-  return <thead className="bg-slate-300 dark:bg-slate-700">{children}</thead>;
+  return <thead className="bg-[#0083c0] dark:bg-slate-700">{children}</thead>;
 }
 
 // Corpo da tabela
@@ -74,7 +74,7 @@ export function Th({ children, className = '', align = 'left' }: { children: Rea
 
   return (
     <th
-      className={`px-6 py-3 text-xs font-semibold uppercase tracking-wider text-slate-800 dark:text-slate-100 ${alignClass} ${className}`}
+      className={`px-6 py-3 text-xs font-semibold uppercase tracking-wider text-white dark:text-slate-100 ${alignClass} ${className}`}
     >
       {children}
     </th>

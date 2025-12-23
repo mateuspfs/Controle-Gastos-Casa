@@ -1,4 +1,5 @@
 import Button from './Button';
+import { useTheme } from '../hooks/useTheme';
 
 // Componente de paginação padronizado
 interface PaginationProps {
@@ -20,12 +21,14 @@ export default function Pagination({
   disabledPrevious = false,
   disabledNext = false,
 }: PaginationProps) {
+  const { theme } = useTheme();
   const totalPages = totalItems > 0 ? Math.ceil(totalItems / pageSize) : 0;
+  const buttonVariant = theme === 'light' ? 'blue' : 'outline';
 
   return (
     <div className="flex items-center justify-between">
       <Button
-        variant="outline"
+        variant={buttonVariant}
         size="sm"
         onClick={onPrevious}
         disabled={disabledPrevious}
@@ -39,7 +42,7 @@ export default function Pagination({
         </span>
       </div>
       <Button
-        variant="outline"
+        variant={buttonVariant}
         size="sm"
         onClick={onNext}
         disabled={disabledNext}
