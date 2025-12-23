@@ -58,3 +58,11 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+// Classe parcial para permitir que WebApplicationFactory funcione com top-level programs
+namespace ControleGastosCasa.Api
+{
+    public partial class Program
+    {
+    }
+}

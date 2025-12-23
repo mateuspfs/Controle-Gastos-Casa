@@ -17,8 +17,8 @@ public static class TransacaoSeeder
 
         // Busca 5 pessoas do banco
         var pessoas = await context.Pessoas
-            .OrderBy(p => p.Id)
-            .Take(5)
+            .OrderByDescending(p => p.Id)
+            .Take(10)
             .ToListAsync();
 
         if (pessoas.Count == 0) return;

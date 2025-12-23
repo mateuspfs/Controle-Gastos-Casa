@@ -11,7 +11,6 @@ namespace ControleGastosCasa.Application.Mapping
         public DomainToDtoMapping()
         {
             CreateMap<Pessoa, PessoaDto>();
-            CreateMap<Pessoa, PessoaTotaisDto>();
             CreateMap<Categoria, CategoriaDto>();
             CreateMap<Transacao, TransacaoDto>();
         }
