@@ -1,11 +1,18 @@
+import React from 'react';
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import Pagination from '../Pagination';
+import { ThemeProvider } from '../../hooks/useTheme';
+
+// Helper para renderizar componentes com ThemeProvider
+const renderWithTheme = (component: React.ReactElement) => {
+  return render(<ThemeProvider>{component}</ThemeProvider>);
+};
 
 describe('Pagination', () => {
   it('deve renderizar botões de navegação', () => {
-    render(
+    renderWithTheme(
       <Pagination
         currentPage={1}
         pageSize={10}
@@ -19,7 +26,7 @@ describe('Pagination', () => {
   });
 
   it('deve exibir página atual e total de páginas', () => {
-    render(
+    renderWithTheme(
       <Pagination
         currentPage={2}
         pageSize={10}
@@ -32,7 +39,7 @@ describe('Pagination', () => {
   });
 
   it('deve exibir apenas página atual quando totalPages é 0', () => {
-    render(
+    renderWithTheme(
       <Pagination
         currentPage={1}
         pageSize={10}
@@ -47,7 +54,7 @@ describe('Pagination', () => {
   it('deve chamar onPrevious quando botão Anterior é clicado', async () => {
     const user = userEvent.setup();
     const handlePrevious = vi.fn();
-    render(
+    renderWithTheme(
       <Pagination
         currentPage={2}
         pageSize={10}
@@ -64,7 +71,7 @@ describe('Pagination', () => {
   it('deve chamar onNext quando botão Próxima é clicado', async () => {
     const user = userEvent.setup();
     const handleNext = vi.fn();
-    render(
+    renderWithTheme(
       <Pagination
         currentPage={1}
         pageSize={10}
@@ -79,7 +86,7 @@ describe('Pagination', () => {
   });
 
   it('deve desabilitar botão Anterior quando disabledPrevious é true', () => {
-    render(
+    renderWithTheme(
       <Pagination
         currentPage={1}
         pageSize={10}
@@ -94,7 +101,7 @@ describe('Pagination', () => {
   });
 
   it('deve desabilitar botão Próxima quando disabledNext é true', () => {
-    render(
+    renderWithTheme(
       <Pagination
         currentPage={5}
         pageSize={10}
