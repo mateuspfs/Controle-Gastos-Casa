@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, type ChangeEvent, type KeyboardEvent } from 'react';
+import { useState, useRef, useEffect, useCallback, type ChangeEvent, type KeyboardEvent } from 'react';
 import { createPortal } from 'react-dom';
 import { ChevronDownIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 
@@ -40,7 +40,7 @@ const Select = ({
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedOption, setSelectedOption] = useState<SelectOption | null>(null);
-  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 0, maxHeight: 0, positionAbove: false });
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -166,30 +166,91 @@ const Select = ({
     }
   }, [isOpen]);
 
-  const updateDropdownPosition = () => {
+  const updateDropdownPosition = useCallback(() => {
     if (inputRef.current) {
+      const visualViewport = window.visualViewport;
+      const viewportHeight = visualViewport ? visualViewport.height : window.innerHeight;
+      const viewportWidth = visualViewport ? visualViewport.width : window.innerWidth;
+      
       const rect = inputRef.current.getBoundingClientRect();
+      
+      const isMobile = viewportWidth < 768 || viewportHeight < 600;
+      
+      const spaceBelow = viewportHeight - rect.bottom;
+      const spaceAbove = rect.top;
+      
+      const maxDropdownHeight = isMobile 
+        ? Math.min(200, viewportHeight * 0.4)
+        : Math.min(240, viewportHeight * 0.6);
+      
+      const gap = isMobile ? 0 : 4;
+      
+      const positionAbove = isMobile 
+        ? spaceBelow < 100 && spaceAbove > spaceBelow
+        : spaceBelow < maxDropdownHeight + 8 && spaceAbove > spaceBelow;
+      
+      let top: number;
+      let maxHeight: number;
+      
+      if (positionAbove) {
+        maxHeight = Math.min(maxDropdownHeight, spaceAbove - gap);
+        top = rect.top - maxHeight - gap;
+      } else {
+        maxHeight = Math.min(maxDropdownHeight, spaceBelow - gap);
+        top = rect.bottom + gap;
+      }
+      
+      const left = Math.max(8, Math.min(rect.left, viewportWidth - rect.width - 8));
+      const width = Math.min(rect.width, viewportWidth - 16);
+      
       setDropdownPosition({
-        top: rect.bottom + window.scrollY + 4,
-        left: rect.left + window.scrollX,
-        width: rect.width,
+        top,
+        left,
+        width,
+        maxHeight: Math.max(isMobile ? 80 : 100, maxHeight),
+        positionAbove,
       });
     }
-  };
+  }, []);
 
   useEffect(() => {
     if (isOpen) {
-      updateDropdownPosition();
+      const delay = window.innerWidth < 768 ? 100 : 0;
+      const timeoutId = setTimeout(() => {
+        updateDropdownPosition();
+      }, delay);
+      
       const handleScroll = () => updateDropdownPosition();
-      const handleResize = () => updateDropdownPosition();
+      const handleResize = () => {
+        if (window.innerWidth < 768) {
+          setTimeout(() => updateDropdownPosition(), 150);
+        } else {
+          updateDropdownPosition();
+        }
+      };
+      
+      const handleVisualViewportChange = () => {
+        if (window.visualViewport) {
+          setTimeout(() => updateDropdownPosition(), 100);
+        }
+      };
+      
       window.addEventListener('scroll', handleScroll, true);
       window.addEventListener('resize', handleResize);
+      if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', handleVisualViewportChange);
+      }
+      
       return () => {
+        clearTimeout(timeoutId);
         window.removeEventListener('scroll', handleScroll, true);
         window.removeEventListener('resize', handleResize);
+        if (window.visualViewport) {
+          window.visualViewport.removeEventListener('resize', handleVisualViewportChange);
+        }
       };
     }
-  }, [isOpen]);
+  }, [isOpen, updateDropdownPosition]);
 
   return (
     <div className="w-full" ref={containerRef}>
@@ -218,6 +279,11 @@ const Select = ({
               setIsOpen(true);
               e.target.select();
               setSearchTerm('');
+              if (window.innerWidth < 768) {
+                setTimeout(() => {
+                  updateDropdownPosition();
+                }, 300);
+              }
             }}
             onBlur={() => {
               setTimeout(() => {
@@ -245,11 +311,12 @@ const Select = ({
         {isOpen && !disabled && createPortal(
           <div
             ref={dropdownRef}
-            className="fixed z-[9999] bg-white border border-slate-300 rounded-lg shadow-lg max-h-60 overflow-auto dark:bg-slate-800 dark:border-slate-600"
+            className="fixed z-[9999] bg-white border border-slate-300 rounded-lg shadow-lg overflow-auto dark:bg-slate-800 dark:border-slate-600"
             style={{
               top: `${dropdownPosition.top}px`,
               left: `${dropdownPosition.left}px`,
               width: `${dropdownPosition.width}px`,
+              maxHeight: `${dropdownPosition.maxHeight}px`,
             }}
           >
             {filteredOptions.length > 0 ? (
