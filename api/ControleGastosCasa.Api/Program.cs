@@ -15,9 +15,15 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo
     {
-        Title = "ControleGastosCasa API",
-        Version = "v1"
+        Title = "Controle de Gastos da Casa API",
+        Version = "v1",
+        Description = "API RESTful para gerenciamento de gastos domésticos. Permite o controle de transações financeiras, categorização de gastos e gerenciamento de pessoas, oferecendo uma visão clara e organizada das finanças domésticas.",
     });
+
+    // Inclui comentários XML na documentação
+    var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    if (File.Exists(xmlPath)) c.IncludeXmlComments(xmlPath);
 });
 
 // Configuração de CORS para permitir requisições do frontend
